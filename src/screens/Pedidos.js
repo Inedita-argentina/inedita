@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text } from 'react-native';
 import { supabase } from '../supabase';
 import { etiquetasEstadoPedido, etiquetasEstadoSolicitud, plata, fechaLinda } from '../theme';
-import { H1, P, Chico, Tarjeta, Fila, Etiqueta, Boton, Campo, Aviso, Cargando, Seccion, Estrellas } from '../ui';
+import { H1, P, Chico, Encabezado, Tarjeta, Fila, Etiqueta, Boton, Campo, Aviso, Cargando, Seccion, Estrellas } from '../ui';
 
 function tonoPedido(e) {
   if (e === 'aceptado' || e === 'aceptada' || e === 'realizada') return 'ok';
@@ -207,7 +207,7 @@ export default function Pedidos({ t, uid, nav }) {
   if (!datos) {
     return (
       <View style={{ gap: 16 }}>
-        <H1 t={t}>Pedidos</H1>
+        <Encabezado t={t} titulo="Pedidos" onVolver={() => nav.raiz('inicio')} />
         <Cargando t={t} />
       </View>
     );
@@ -218,7 +218,7 @@ export default function Pedidos({ t, uid, nav }) {
 
   return (
     <View style={{ gap: 22 }}>
-      <H1 t={t}>Pedidos</H1>
+      <Encabezado t={t} titulo="Pedidos" onVolver={() => nav.raiz('inicio')} />
       <Aviso t={t} texto={error} />
       <Aviso t={t} texto={ok} tono="ok" />
       {vacio ? (

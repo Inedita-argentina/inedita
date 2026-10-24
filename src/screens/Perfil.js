@@ -18,6 +18,7 @@ import {
   Etiqueta,
   Chips,
   Inicial,
+  Encabezado,
 } from '../ui';
 
 export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
@@ -88,6 +89,7 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
 
   return (
     <View style={{ gap: 22 }}>
+      <Encabezado t={t} onVolver={() => nav.raiz('inicio')} />
       <Fila>
         <Inicial t={t} nombre={perfil.nombre} tamano={56} />
         <View style={{ flex: 1 }}>
