@@ -117,7 +117,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
   const cargar = useCallback(async () => {
     const { data, error: e } = await supabase
       .from('canciones')
-      .select('*, perfiles(nombre)')
+      .select('*, perfiles:perfiles!canciones_compositor_id_fkey(nombre)')
       .eq('id', params.id)
       .maybeSingle();
     if (e || !data) {

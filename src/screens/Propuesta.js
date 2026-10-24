@@ -48,7 +48,7 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
   const cargar = useCallback(async () => {
     const { data, error: e } = await supabase
       .from('propuestas_vivo')
-      .select('*, perfiles(nombre), propuesta_generos(genero_id)')
+      .select('*, perfiles:perfiles!propuestas_vivo_artista_id_fkey(nombre), propuesta_generos(genero_id)')
       .eq('id', params.id)
       .maybeSingle();
     if (e || !data) {

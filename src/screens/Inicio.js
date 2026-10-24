@@ -144,7 +144,7 @@ function InicioInedita({ t, nav }) {
     setError('');
     let q = supabase
       .from('canciones')
-      .select('id,titulo,genero_id,tonalidad,estado,destacada,para_versionar,compositor_id,creado_en,perfiles(nombre)')
+      .select('id,titulo,genero_id,tonalidad,estado,destacada,para_versionar,compositor_id,creado_en,perfiles:perfiles!canciones_compositor_id_fkey(nombre)')
       .neq('estado', 'oculta')
       .order('creado_en', { ascending: false })
       .limit(60);
@@ -254,7 +254,7 @@ function InicioVivo({ t, nav }) {
     setLista(null);
     let q = supabase
       .from('propuestas_vivo')
-      .select('*, perfiles(nombre), propuesta_generos(genero_id)')
+      .select('*, perfiles:perfiles!propuestas_vivo_artista_id_fkey(nombre), propuesta_generos(genero_id)')
       .eq('activa', true)
       .eq('tipo', tipo)
       .order('destacada', { ascending: false })
