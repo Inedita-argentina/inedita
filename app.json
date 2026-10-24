@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Inédita",
+    "slug": "inedita",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#06140C",
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "Inédita",
+      "shortName": "Inédita",
+      "themeColor": "#06140C",
+      "backgroundColor": "#06140C"
+    },
+    "ios": {
+      "bundleIdentifier": "ar.inedita.app",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "ar.inedita.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2b474659-00fa-4604-b4eb-f66eda42a684"
+      }
+    }
+  }
+}
