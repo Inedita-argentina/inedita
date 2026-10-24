@@ -33,8 +33,24 @@ export async function subirArchivo(bucket, uid, asset) {
     const resp = await fetch(asset.uri);
     cuerpo = await resp.arrayBuffer(); // celular
   }
+  const tipos = {
+    mp3: 'audio/mpeg',
+    m4a: 'audio/mp4',
+    mp4: 'audio/mp4',
+    aac: 'audio/aac',
+    wav: 'audio/wav',
+    ogg: 'audio/ogg',
+    opus: 'audio/ogg',
+    webm: 'audio/webm',
+    pdf: 'application/pdf',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    webp: 'image/webp',
+  };
+  const tipo = tipos[ext] || asset.mimeType || undefined;
   const { error } = await supabase.storage.from(bucket).upload(ruta, cuerpo, {
-    contentType: asset.mimeType || undefined,
+    contentType: tipo,
     upsert: false,
   });
   if (error) throw error;

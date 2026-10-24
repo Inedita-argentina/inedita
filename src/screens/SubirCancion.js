@@ -34,9 +34,15 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
 
   async function elegirAudio() {
     setError('');
-    const res = await DocumentPicker.getDocumentAsync({ type: 'audio/*', copyToCacheDirectory: true });
+    const res = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
     if (res.canceled || !res.assets || !res.assets.length) return;
     const a = res.assets[0];
+    const ext = ((a.name || '').split('.').pop() || '').toLowerCase();
+    const permitidas = ['mp3', 'm4a', 'wav', 'aac', 'ogg', 'opus', 'mp4', 'webm'];
+    if (permitidas.indexOf(ext) < 0 && !(a.mimeType || '').startsWith('audio/')) {
+      setError('Ese archivo no parece un audio. Probá con mp3, m4a, wav, aac, ogg u opus.');
+      return;
+    }
     if (a.size && a.size > 25 * 1024 * 1024) {
       setError('El audio pesa más de 25 MB. Probá con una grabación más corta o en mp3.');
       return;
