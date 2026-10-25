@@ -19,33 +19,71 @@ import {
 } from '../ui';
 import { useGeneros, hijos, descendientes, nombreGenero } from '../generos';
 
+// Cada pestaña tiene su color propio: verde para Inédita, dorado para Inédita en Vivo.
+// La activa va rellena con su color; la otra, con borde y letras de su color.
 function Selector({ t, seccion, setSeccion }) {
   const op = [
-    { id: 'inedita', label: 'Inédita' },
-    { id: 'vivo', label: 'Inédita en Vivo' },
+    { id: 'inedita', label: 'Inédita', color: '#1ED760', texto: '#04120A' },
+    { id: 'vivo', label: 'Inédita en Vivo', color: '#F6C744', texto: '#1A0508' },
   ];
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: t.track, borderRadius: 14, padding: 4, gap: 4 }}>
-      {op.map((o) => (
-        <Pressable
-          key={o.id}
-          accessibilityRole="tab"
-          accessibilityState={{ selected: seccion === o.id }}
-          onPress={() => setSeccion(o.id)}
-          style={{
-            flex: 1,
-            minHeight: 44,
-            borderRadius: 11,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: seccion === o.id ? t.tabOn : 'transparent',
-          }}
-        >
-          <Text style={{ color: seccion === o.id ? t.ink : t.muted, fontWeight: seccion === o.id ? '700' : '500', fontSize: 15 }}>
-            {o.label}
-          </Text>
-        </Pressable>
-      ))}
+    <View
+      style={{
+        flexDirection: 'row',
+        backgroundColor: t.surface,
+        borderWidth: 1,
+        borderColor: t.line,
+        borderRadius: 16,
+        padding: 5,
+        gap: 6,
+      }}
+    >
+      {op.map((o) => {
+        const activa = seccion === o.id;
+        return (
+          <Pressable
+            key={o.id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activa }}
+            onPress={() => setSeccion(o.id)}
+            style={({ pressed }) => ({
+              flex: 1,
+              minHeight: 48,
+              borderRadius: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: activa ? o.color : 'transparent',
+              borderWidth: activa ? 0 : 1.5,
+              borderColor: o.color + '88',
+              opacity: pressed ? 0.85 : 1,
+            })}
+          >
+            <Text style={{ color: activa ? o.texto : o.color, fontWeight: '800', fontSize: 16 }}>{o.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+// Luna creciente dibujada con dos círculos (sin imágenes ni librerías extra)
+function Luna({ color, fondo, tamano }) {
+  const s = tamano || 16;
+  const hueco = s * 0.78;
+  return (
+    <View style={{ width: s, height: s, marginTop: -s * 0.55 }} accessibilityElementsHidden importantForAccessibility="no">
+      <View style={{ position: 'absolute', width: s, height: s, borderRadius: s / 2, backgroundColor: color }} />
+      <View
+        style={{
+          position: 'absolute',
+          width: hueco,
+          height: hueco,
+          borderRadius: hueco / 2,
+          backgroundColor: fondo,
+          top: -s * 0.12,
+          left: s * 0.36,
+        }}
+      />
     </View>
   );
 }
@@ -403,7 +441,10 @@ export default function Inicio(props) {
         <Fila style={{ gap: 6 }}>
           <Text style={{ color: t.ink, fontSize: 30, fontWeight: '800', letterSpacing: -0.5 }}>Inédita</Text>
           {seccion === 'vivo' ? (
-            <Text style={{ color: t.link, fontSize: 18, fontWeight: '700' }}>en Vivo ☾</Text>
+            <Fila style={{ gap: 5, alignItems: 'flex-end' }}>
+              <Text style={{ color: t.link, fontSize: 18, fontWeight: '700' }}>en Vivo</Text>
+              <Luna color={t.link} fondo={t.bg} tamano={16} />
+            </Fila>
           ) : null}
         </Fila>
         <Pressable accessibilityRole="button" accessibilityLabel="Mi perfil" onPress={() => nav.raiz('perfil')}>
