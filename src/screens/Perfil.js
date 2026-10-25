@@ -40,27 +40,32 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [mail, setMail] = useState('');
+  const [modoPrueba, setModoPrueba] = useState(false);
 
   const cargar = useCallback(async () => {
-    const [c, p, i, s, u] = await Promise.all([
+    const [c, p, i, s, u, cfg] = await Promise.all([
       supabase.from('canciones').select('id,titulo,estado,para_versionar').eq('compositor_id', uid).order('creado_en', { ascending: false }),
       supabase.from('propuestas_vivo').select('id,nombre_artistico,tipo,activa').eq('artista_id', uid),
       supabase.from('insignias').select('*').eq('perfil_id', uid),
       supabase.from('estadisticas_compositor').select('*').eq('compositor_id', uid).maybeSingle(),
       supabase.auth.getUser(),
+      supabase.from('configuracion').select('modo_prueba').eq('id', 1).maybeSingle(),
     ]);
     setCanciones(c.data || []);
     setPropuestas(p.data || []);
     setInsignias(i.data || []);
     setStats(s.data || null);
     setMail(u.data && u.data.user ? u.data.user.email : '');
+    setModoPrueba(!!(cfg.data && cfg.data.modo_prueba));
   }, [uid]);
 
   useEffect(() => {
     cargar();
   }, [cargar]);
 
-  const cuota = semaforoCuota(perfil.cuota_vence, perfil.es_admin);
+  const cuota = modoPrueba && !perfil.es_admin
+    ? { color: 'verde', texto: 'Período de prueba: acceso completo y gratis' }
+    : semaforoCuota(perfil.cuota_vence, perfil.es_admin);
 
   async function guardar() {
     setError('');
