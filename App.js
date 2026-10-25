@@ -30,7 +30,7 @@ function Decorado({ seccion }) {
           top: (rnd() * 100).toFixed(2) + '%',
           size: 1 + Math.round(rnd() * 2),
           opacity: 0.35 + rnd() * 0.6,
-          color: i % 9 === 0 ? '#F4E3A1' : '#FFFFFF',
+          color: i % 9 === 0 ? temas.vivo.decorado : '#FFFFFF',
         });
       }
     } else {
@@ -44,7 +44,7 @@ function Decorado({ seccion }) {
             top: Math.max(0, Math.min(99, c[1] + Math.sin(ang) * dist * 0.6)).toFixed(2) + '%',
             size: j === 0 ? 10 + Math.round(rnd() * 6) : 2 + Math.round(rnd() * 5),
             opacity: 0.55 + rnd() * 0.45,
-            color: '#FFD23F',
+            color: temas.inedita.decorado,
           });
         }
       });
@@ -54,7 +54,7 @@ function Decorado({ seccion }) {
           top: (rnd() * 100).toFixed(2) + '%',
           size: 1 + Math.round(rnd() * 3),
           opacity: 0.4 + rnd() * 0.5,
-          color: '#FFD23F',
+          color: temas.inedita.decorado,
         });
       }
     }

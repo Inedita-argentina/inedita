@@ -5,14 +5,14 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#06140C",
+    "backgroundColor": "#050505",
     "web": {
       "bundler": "metro",
       "output": "single",
       "name": "Inédita",
       "shortName": "Inédita",
-      "themeColor": "#06140C",
-      "backgroundColor": "#06140C"
+      "themeColor": "#050505",
+      "backgroundColor": "#050505"
     },
     "ios": {
       "bundleIdentifier": "ar.inedita.app",

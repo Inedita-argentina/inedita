@@ -39,8 +39,8 @@ export function Boton({ t, title, onPress, variant, disabled, loading, style, ch
   let fg = t.onCard;
   let borde = 0;
   if (v === 'accent') {
-    bg = t.link;
-    fg = t.onLink;
+    bg = t.destacado;
+    fg = t.onAccent;
   } else if (v === 'outline') {
     bg = 'transparent';
     fg = t.link;
@@ -220,7 +220,7 @@ export function Interruptor({ t, label, value, onValueChange, hint }) {
       <Switch
         value={!!value}
         onValueChange={onValueChange}
-        trackColor={{ true: t.nombre === 'inedita' ? t.primary : '#4B67C9', false: t.line }}
+        trackColor={{ true: t.interruptor, false: t.line }}
         thumbColor="#FFFFFF"
         accessibilityLabel={label}
       />
