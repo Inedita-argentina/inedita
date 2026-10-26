@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { supabase } from '../supabase';
 import { H1, P, Campo, Boton, Aviso, Chico } from '../ui';
 
@@ -67,7 +67,10 @@ export default function Login({ t }) {
           <H1 t={t} style={{ fontSize: 40 }}>
             Inédita
           </H1>
-          <P t={t} muted>
+          <Text style={{ color: t.destacado, fontSize: 22, fontWeight: '800', marginTop: -4 }}>
+            ¡La canción que buscás!
+          </Text>
+          <P t={t} muted style={{ marginTop: 6 }}>
             Canciones que todavía nadie cantó, y música en vivo para tu evento.
           </P>
         </View>

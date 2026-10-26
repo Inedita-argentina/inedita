@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Pressable, Linking } from 'react-native';
-import { Audio } from 'expo-av';
 import { supabase } from '../supabase';
 import { etiquetasEstadoCancion, etiquetasEstadoPedido, voces } from '../theme';
 import {
@@ -20,84 +19,7 @@ import {
   Inicial,
 } from '../ui';
 import { useGeneros, ruta } from '../generos';
-
-function Reproductor({ t, ruta: rutaAudio }) {
-  const [sonido, setSonido] = useState(null);
-  const [sonando, setSonando] = useState(false);
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    return () => {
-      if (sonido) sonido.unloadAsync();
-    };
-  }, [sonido]);
-
-  async function alternar() {
-    setError('');
-    try {
-      if (sonido) {
-        const st = await sonido.getStatusAsync();
-        if (st.isPlaying) {
-          await sonido.pauseAsync();
-          setSonando(false);
-        } else {
-          await sonido.playAsync();
-          setSonando(true);
-        }
-        return;
-      }
-      setCargando(true);
-      const { data, error: e } = await supabase.storage.from('audios').createSignedUrl(rutaAudio, 900);
-      if (e || !data) throw e || new Error('sin url');
-      const { sound } = await Audio.Sound.createAsync({ uri: data.signedUrl }, { shouldPlay: true }, (st) => {
-        if (st.didJustFinish) setSonando(false);
-      });
-      setSonido(sound);
-      setSonando(true);
-    } catch (e) {
-      setError('Para escuchar los demos del catálogo necesitás tener la cuota al día. Revisá tu perfil.');
-    } finally {
-      setCargando(false);
-    }
-  }
-
-  return (
-    <View style={{ gap: 8 }}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={sonando ? 'Pausar demo' : 'Escuchar demo'}
-        onPress={alternar}
-        style={{
-          backgroundColor: t.track,
-          borderRadius: 14,
-          padding: 12,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <View
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            backgroundColor: t.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Text style={{ color: t.onCard, fontSize: 18, fontWeight: '800' }}>{cargando ? '…' : sonando ? 'II' : '▶'}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: t.ink, fontWeight: '700' }}>{sonando ? 'Sonando el demo' : 'Escuchar el demo'}</Text>
-          <Chico t={t}>Tocá para reproducir o pausar</Chico>
-        </View>
-      </Pressable>
-      <Aviso t={t} texto={error} />
-    </View>
-  );
-}
+import { Reproductor, ElegirFragmento, leerTiempo, escribirTiempo } from '../fragmento';
 
 export default function Cancion({ t, nav, uid, params, perfil }) {
   const generos = useGeneros();
@@ -113,6 +35,10 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [grabadaPor, setGrabadaPor] = useState('');
+  const [acceso, setAcceso] = useState(false);
+  const [fragInicio, setFragInicio] = useState('0:00');
+  const [fragDuracion, setFragDuracion] = useState(30);
+  const [okFrag, setOkFrag] = useState('');
 
   const cargar = useCallback(async () => {
     const { data, error: e } = await supabase
@@ -126,6 +52,9 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
     }
     setC(data);
     setGrabadaPor(data.grabada_por || '');
+    setFragInicio(escribirTiempo(data.fragmento_inicio || 0));
+    setFragDuracion(data.fragmento_duracion || 30);
+    supabase.rpc('tiene_acceso').then((r) => setAcceso(!!r.data));
     const [a, l, f, p, s, ins] = await Promise.all([
       supabase.from('autores').select('*').eq('cancion_id', data.id),
       supabase.from('letras').select('letra').eq('cancion_id', data.id).maybeSingle(),
@@ -203,6 +132,22 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
     else cargar();
   }
 
+  async function guardarFragmento() {
+    setError('');
+    setOkFrag('');
+    const desde = leerTiempo(fragInicio);
+    if (desde == null) return setError('Revisá el minuto del fragmento (por ejemplo 1:05).');
+    const { error: e } = await supabase
+      .from('canciones')
+      .update({ fragmento_inicio: desde, fragmento_duracion: fragDuracion })
+      .eq('id', c.id);
+    if (e) setError('No se pudo guardar el fragmento.');
+    else {
+      setOkFrag('Fragmento guardado.');
+      cargar();
+    }
+  }
+
   const tonoEstado = c.estado === 'disponible' ? 'ok' : c.estado === 'reservada' ? 'aviso' : undefined;
 
   return (
@@ -221,7 +166,16 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
       </P>
       {c.tematica ? <P t={t}>Temática: {c.tematica}</P> : null}
 
-      {c.audio_path ? <Reproductor t={t} ruta={c.audio_path} /> : null}
+      {c.audio_path ? (
+        <View style={{ gap: 10 }}>
+          <Reproductor t={t} ruta={c.audio_path} desde={c.fragmento_inicio || 0} duracion={c.fragmento_duracion || 30} />
+          {acceso || esMia ? (
+            <Reproductor t={t} ruta={c.audio_path} />
+          ) : (
+            <Chico t={t}>Para escuchar el demo completo necesitás tener la cuota al día. Revisá tu perfil.</Chico>
+          )}
+        </View>
+      ) : null}
 
       {c.enlace_youtube || c.enlace_spotify ? (
         <Fila style={{ flexWrap: 'wrap' }}>
@@ -298,7 +252,26 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
             hint="Se guarda cuando marcás la canción como Grabada."
           />
         </Tarjeta>
-      ) : (
+      ) : null}
+
+      {esMia && c.audio_path ? (
+        <Tarjeta t={t}>
+          <H2 t={t}>Fragmento destacado</H2>
+          <Chico t={t}>Elegí la parte de la canción que escuchan primero los artistas.</Chico>
+          <ElegirFragmento
+            t={t}
+            ruta={c.audio_path}
+            inicioTexto={fragInicio}
+            onInicioTexto={setFragInicio}
+            duracion={fragDuracion}
+            onDuracion={setFragDuracion}
+          />
+          <Aviso t={t} texto={okFrag} tono="ok" />
+          <Boton t={t} title="Guardar fragmento" onPress={guardarFragmento} />
+        </Tarjeta>
+      ) : null}
+
+      {esMia ? null : (
         <View style={{ gap: 12 }}>
           <Boton t={t} variant="outline" title={esFav ? '♥ En tus favoritos' : '♡ Guardar en favoritos'} onPress={alternarFav} />
           {pendiente ? (
