@@ -150,22 +150,59 @@ function FilaCancion({ t, c, generos, onPress }) {
   );
 }
 
-function Banner({ t, titulo, texto, onPress }) {
+// Llamado a la acción: tarjeta llena de color, con botón, para lo más importante de la app
+function Banner({ t, titulo, texto, boton, icono, onPress }) {
+  const [apretado, setApretado] = useState(false);
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={titulo + '. ' + (boton || '')}
       onPress={onPress}
+      onPressIn={() => setApretado(true)}
+      onPressOut={() => setApretado(false)}
       style={{
-        borderRadius: 18,
-        backgroundColor: t.destacadoSoft,
-        borderWidth: 1,
-        borderColor: t.destacadoLine,
-        padding: 16,
-        gap: 4,
+        borderRadius: 22,
+        backgroundColor: t.destacado,
+        padding: 18,
+        gap: 14,
+        transform: [{ scale: apretado ? 0.98 : 1 }],
+        shadowColor: t.destacado,
+        shadowOpacity: 0.35,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 4 },
       }}
     >
-      <Text style={{ color: t.ink, fontWeight: '700', fontSize: 15 }}>{titulo}</Text>
-      <Chico t={t}>{texto}</Chico>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={{ color: t.onAccent, fontWeight: '800', fontSize: 20, lineHeight: 25 }}>{titulo}</Text>
+          <Text style={{ color: t.onAccent, opacity: 0.78, fontSize: 14, lineHeight: 19 }}>{texto}</Text>
+        </View>
+        <View
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: 26,
+            backgroundColor: t.onAccent,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ color: t.destacado, fontSize: 26, fontWeight: '800', marginTop: -2 }}>{icono || '+'}</Text>
+        </View>
+      </View>
+      {boton ? (
+        <View
+          style={{
+            alignSelf: 'flex-start',
+            backgroundColor: t.onAccent,
+            borderRadius: 999,
+            paddingVertical: 10,
+            paddingHorizontal: 18,
+          }}
+        >
+          <Text style={{ color: t.destacado, fontWeight: '800', fontSize: 15 }}>{boton}  →</Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 }
@@ -218,6 +255,14 @@ function InicioInedita({ t, nav }) {
 
   return (
     <View style={{ gap: 22 }}>
+      <Banner
+        t={t}
+        titulo="¿Componés? ¡Subí tus canciones!"
+        texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
+        boton="Subir una canción"
+        icono="♪"
+        onPress={() => nav.ir('subir', {})}
+      />
       <Campo t={t} value={busqueda} onChangeText={setBusqueda} placeholder="Buscar por título…" />
       <Chips>
         <Chip t={t} label="Todos" selected={!familia} onPress={() => setFamilia(null)} />
@@ -270,12 +315,6 @@ function InicioInedita({ t, nav }) {
         </Seccion>
       ) : null}
 
-      <Banner
-        t={t}
-        titulo="¿Componés? ¡Subí tus canciones!"
-        texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
-        onPress={() => nav.ir('subir', {})}
-      />
     </View>
   );
 }
@@ -423,12 +462,15 @@ function InicioVivo({ t, nav }) {
         t={t}
         titulo="¿Tocás en vivo?"
         texto="Armá tu propuesta y recibí pedidos de fechas."
+        boton="Crear mi propuesta"
+        icono="♪"
         onPress={() => nav.ir('editarPropuesta', { tipo: 'artista' })}
       />
       <Banner
         t={t}
         titulo="¿Sos sonidista o tenés equipo?"
         texto="Ofrecé tu servicio y que te contraten para eventos."
+        boton="Ofrecer mi servicio"
         onPress={() => nav.ir('editarPropuesta', { tipo: 'sonido' })}
       />
     </View>
