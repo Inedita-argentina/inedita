@@ -25,8 +25,9 @@ import { useGeneros, hijos, descendientes, nombreGenero } from '../generos';
 // La activa va rellena con su color; la otra, con borde y letras de su color.
 function Selector({ t, seccion, setSeccion }) {
   const op = [
-    { id: 'inedita', label: 'Inédita', color: '#1ED760', texto: '#04120A' },
-    { id: 'vivo', label: 'Inédita en Vivo', color: '#F6C744', texto: '#1A0508' },
+    // relleno: color de la solapa activa (igual al cartel de la sección); color: borde y letra cuando no está activa
+    { id: 'inedita', label: 'Inédita', color: '#1ED760', relleno: '#0F3D22', texto: '#FFFFFF' },
+    { id: 'vivo', label: 'Inédita en Vivo', color: '#F6C744', relleno: '#F6C744', texto: '#1A0508' },
   ];
   return (
     <View
@@ -54,9 +55,9 @@ function Selector({ t, seccion, setSeccion }) {
               borderRadius: 12,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: activa ? o.color : 'transparent',
-              borderWidth: activa ? 0 : 1.5,
-              borderColor: o.color + '88',
+              backgroundColor: activa ? o.relleno : 'transparent',
+              borderWidth: activa && o.relleno === o.color ? 0 : 1.5,
+              borderColor: activa ? o.color : o.color + '88',
               opacity: pressed ? 0.85 : 1,
             })}
           >
@@ -542,7 +543,7 @@ export default function Inicio(props) {
         </Pressable>
       </Fila>
       <P t={t} muted>
-        Hola, {perfil.nombre}.{' '}
+        Hola, {(perfil.nombre || '').trim()}.{' '}
         {seccion === 'vivo' ? '¡Acá empieza el show!' : '¡Acá nacen los éxitos!'}
       </P>
       <View
