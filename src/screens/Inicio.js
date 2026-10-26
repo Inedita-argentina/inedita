@@ -261,12 +261,19 @@ function InicioInedita({ t, nav }) {
     <View style={{ gap: 22 }}>
       <Banner
         t={t}
-        titulo="¿Componés? ¡Subí tus canciones!"
-        texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
-        boton="Subir una canción"
+        titulo="¿Cantás? ¡Encontrá tu próxima canción!"
+        texto="Canciones inéditas de autores argentinos, listas para que las grabes."
+        boton="Buscar canciones"
         icono="♪"
-        onPress={() => nav.ir('subir', {})}
+        colores={{ fondo: t.link, texto: '#04120A', acento: t.destacado, sobreAcento: t.onAccent }}
+        onPress={() => {
+          if (typeof document !== 'undefined') {
+            const el = document.getElementById('lista-inedita');
+            if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }}
       />
+      <View nativeID="lista-inedita" />
       <Campo t={t} value={busqueda} onChangeText={setBusqueda} placeholder="Buscar por título…" />
       <Chips>
         <Chip t={t} label="Todos" selected={!familia} onPress={() => setFamilia(null)} />
@@ -318,6 +325,14 @@ function InicioInedita({ t, nav }) {
           ))}
         </Seccion>
       ) : null}
+
+      <Tarjeta t={t} style={{ gap: 12 }}>
+        <Text style={{ color: t.ink, fontWeight: '800', fontSize: 18 }}>¿Componés? ¡Subí tus canciones!</Text>
+        <Chico t={t}>
+          Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular.
+        </Chico>
+        <Boton t={t} variant="accent" title="Subir una canción" onPress={() => nav.ir('subir', {})} />
+      </Tarjeta>
 
     </View>
   );
