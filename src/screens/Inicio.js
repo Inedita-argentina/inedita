@@ -75,7 +75,7 @@ function Luna({ color, fondo, tamano }) {
   const s = tamano || 16;
   const hueco = s * 0.78;
   return (
-    <View style={{ width: s, height: s, marginTop: -s * 0.55 }} accessibilityElementsHidden importantForAccessibility="no">
+    <View style={{ width: s, height: s, transform: [{ translateY: -s * 0.55 }] }} accessibilityElementsHidden importantForAccessibility="no">
       <View style={{ position: 'absolute', width: s, height: s, borderRadius: s / 2, backgroundColor: color }} />
       <View
         style={{
