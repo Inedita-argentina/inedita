@@ -19,6 +19,7 @@ import {
   Inicial,
 } from '../ui';
 import { useGeneros, ruta } from '../generos';
+import { CartelRevision, PanelAdmin, BotonReportar } from '../revision';
 import { Reproductor, ElegirFragmento, validarFragmento, columnasFragmento, fragmentoInicial, partesDeCancion } from '../fragmento';
 
 export default function Cancion({ t, nav, uid, params, perfil }) {
@@ -163,6 +164,10 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
         {c.anio_publicacion ? ' · ' + c.anio_publicacion : ''}
       </P>
       {c.tematica ? <P t={t}>Temática: {c.tematica}</P> : null}
+      {esMia ? <CartelRevision t={t} item={c} que="canción" /> : null}
+      {perfil.es_admin ? (
+        <PanelAdmin t={t} item={c} tabla="canciones" duenoId={c.compositor_id} campoReporte="cancion_id" onCambio={cargar} />
+      ) : null}
 
       {c.audio_path ? (
         <View style={{ gap: 10 }}>
@@ -299,6 +304,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
           ) : null}
         </View>
       )}
+      {!esMia && c.revision === 'aprobada' ? <BotonReportar t={t} uid={uid} campo="cancion_id" id={c.id} /> : null}
     </View>
   );
 }

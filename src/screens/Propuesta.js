@@ -20,6 +20,7 @@ import {
   Estrellas,
 } from '../ui';
 import { useGeneros, nombreGenero } from '../generos';
+import { CartelRevision, PanelAdmin, BotonReportar } from '../revision';
 
 export default function Propuesta({ t, nav, uid, params, perfil }) {
   const generos = useGeneros();
@@ -133,6 +134,10 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
         {p.incluye_iluminacion ? <Etiqueta t={t} text="Con iluminación" /> : null}
         {!p.activa ? <Etiqueta t={t} text="Pausada" tono="error" /> : null}
       </Chips>
+      {esMia ? <CartelRevision t={t} item={p} que="propuesta" /> : null}
+      {perfil.es_admin ? (
+        <PanelAdmin t={t} item={p} tabla="propuestas_vivo" duenoId={p.artista_id} campoReporte="propuesta_id" onCambio={cargar} />
+      ) : null}
 
       <Tarjeta t={t}>
         <Fila style={{ justifyContent: 'space-between' }}>
@@ -195,7 +200,7 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
 
       {esMia ? (
         <Boton t={t} variant="accent" title="Editar mi propuesta" onPress={() => nav.ir('editarPropuesta', { id: p.id })} />
-      ) : p.activa ? (
+      ) : p.activa && p.revision === 'aprobada' ? (
         <Tarjeta t={t}>
           <H2 t={t}>Pedir presupuesto</H2>
           <Campo t={t} label="Fecha del evento" value={f.fecha} onChangeText={(v) => campo('fecha', v)} placeholder="AAAA-MM-DD" />
@@ -225,6 +230,7 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
           <Boton t={t} variant="accent" title="Enviar pedido" onPress={pedirPresupuesto} loading={enviando} />
         </Tarjeta>
       ) : null}
+      {!esMia && p.revision === 'aprobada' ? <BotonReportar t={t} uid={uid} campo="propuesta_id" id={p.id} /> : null}
     </View>
   );
 }

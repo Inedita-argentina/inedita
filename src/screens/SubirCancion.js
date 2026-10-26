@@ -5,6 +5,7 @@ import { supabase, subirArchivo } from '../supabase';
 import { voces } from '../theme';
 import { Encabezado, P, Chico, Campo, Boton, Aviso, Tarjeta, H2, Chip, Chips, Interruptor, Fila } from '../ui';
 import { useGeneros, SelectorGenero } from '../generos';
+import { analizarAudio, puedeAnalizar } from '../analisisAudio';
 import { ElegirFragmento, validarFragmento, columnasFragmento, fragmentoInicial } from '../fragmento';
 
 const roles = [
@@ -12,6 +13,29 @@ const roles = [
   { id: 'letra', nombre: 'Letra' },
   { id: 'musica', nombre: 'Música' },
 ];
+
+function ControlesAudio({ t, analisis }) {
+  if (!analisis) return null;
+  if (analisis === 'revisando') return <Chico t={t}>Revisando el audio…</Chico>;
+  if (analisis === 'sin_revisar') {
+    return <Chico t={t}>No pudimos revisar este audio automáticamente. Lo revisamos nosotros antes de publicarlo.</Chico>;
+  }
+  const color = { ok: '#1ED760', aviso: '#F6C744', bloquea: '#FF6B6B' };
+  const icono = { ok: '✓', aviso: '!', bloquea: '✕' };
+  return (
+    <View style={{ gap: 6 }}>
+      {analisis.controles.map((c) => (
+        <View key={c.id} style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+          <Text style={{ color: color[c.estado], fontWeight: '800', width: 14, textAlign: 'center' }}>{icono[c.estado]}</Text>
+          <Text style={{ color: c.estado === 'ok' ? t.muted : t.ink, flex: 1, fontSize: 13, lineHeight: 18 }}>{c.texto}</Text>
+        </View>
+      ))}
+      {analisis.bloquea ? (
+        <Text style={{ color: '#FF6B6B', fontWeight: '700', fontSize: 13 }}>Este audio no se puede subir. Elegí otro.</Text>
+      ) : null}
+    </View>
+  );
+}
 
 export default function SubirCancion({ t, nav, uid, perfil }) {
   const generos = useGeneros();
@@ -30,6 +54,7 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
   const [anio, setAnio] = useState('');
   const [audio, setAudio] = useState(null);
   const [frag, setFrag] = useState(fragmentoInicial(null));
+  const [analisis, setAnalisis] = useState(null); // null | 'revisando' | 'sin_revisar' | resultado
   const [autores, setAutores] = useState([{ nombre: perfil.nombre || '', rol: 'letra_y_musica', porcentaje: '100' }]);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -50,6 +75,17 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
       return;
     }
     setAudio(a);
+    if (!puedeAnalizar()) {
+      setAnalisis(null);
+      return;
+    }
+    setAnalisis('revisando');
+    try {
+      const r = await analizarAudio(a);
+      setAnalisis(r || 'sin_revisar');
+    } catch (e) {
+      setAnalisis('sin_revisar');
+    }
   }
 
   function cambiarAutor(i, campo, valor) {
@@ -66,6 +102,8 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
       return setError('Si la canción ya está publicada, pegá el link de YouTube o de Spotify.');
     }
     if (!publicada && !audio) return setError('Subí el audio del demo para que los artistas la puedan escuchar.');
+    if (audio && analisis === 'revisando') return setError('Esperá un momento: estamos revisando el audio.');
+    if (audio && analisis && analisis.bloquea) return setError('El audio no cumple los requisitos. Mirá los detalles en "Audio del demo".');
     const fragRes = validarFragmento(frag);
     if (audio && fragRes.error) return setError('Fragmento destacado: ' + fragRes.error);
     const autoresValidos = autores.filter((a) => a.nombre.trim());
@@ -164,9 +202,19 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
         <Chico t={t}>Puede ser una grabación con el celular: guitarra y voz alcanzan. Hasta 25 MB.</Chico>
         <Boton t={t} variant="outline" title={audio ? 'Cambiar audio' : 'Elegir audio'} onPress={elegirAudio} />
         {audio ? <Text style={{ color: t.link, fontWeight: '600' }}>✓ {audio.name}</Text> : null}
+        <ControlesAudio t={t} analisis={audio ? analisis : null} />
+        {!audio ? (
+          <View style={{ gap: 4, paddingTop: 4 }}>
+            <Text style={{ color: t.ink, fontWeight: '700', fontSize: 14 }}>Para que tu demo suene bien</Text>
+            <Chico t={t}>• Entre 1 y 8 minutos.</Chico>
+            <Chico t={t}>• Celular cerca, pero no pegado a la boca ni a la guitarra.</Chico>
+            <Chico t={t}>• Un lugar sin eco ni ruido de fondo (ni tele, ni calle, ni ventilador).</Chico>
+            <Chico t={t}>• Mejor en mp3 o m4a que como nota de voz de WhatsApp.</Chico>
+          </View>
+        ) : null}
       </Tarjeta>
 
-      {audio ? (
+      {audio && !(analisis && analisis.bloquea) ? (
         <Tarjeta t={t}>
           <H2 t={t}>Fragmento destacado</H2>
           <Chico t={t}>
@@ -235,7 +283,10 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
 
       <Aviso t={t} texto={error} />
       <Boton t={t} variant="accent" title="Publicar canción" onPress={guardar} loading={guardando} />
-      <Chico t={t}>Al publicar, confirmás que sos autor o tenés permiso de los autores para compartirla.</Chico>
+      <Chico t={t}>
+        Al publicar, confirmás que sos autor o tenés permiso de los autores para compartirla. Las canciones nuevas pasan por una
+        revisión antes de aparecer en el catálogo.
+      </Chico>
     </View>
   );
 }

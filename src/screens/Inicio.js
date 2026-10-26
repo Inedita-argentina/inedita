@@ -184,6 +184,7 @@ function InicioInedita({ t, nav }) {
       .from('canciones')
       .select('id,titulo,genero_id,tonalidad,estado,destacada,para_versionar,compositor_id,creado_en,perfiles:perfiles!canciones_compositor_id_fkey(nombre)')
       .neq('estado', 'oculta')
+      .eq('revision', 'aprobada')
       .order('creado_en', { ascending: false })
       .limit(60);
     if (familia && generos.length) q = q.in('genero_id', descendientes(generos, familia));
@@ -271,8 +272,8 @@ function InicioInedita({ t, nav }) {
 
       <Banner
         t={t}
-        titulo="¿Tenés una canción guardada?"
-        texto="Subila en 2 minutos, aunque sea grabada con el celular."
+        titulo="¿Componés? ¡Subí tus canciones!"
+        texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
         onPress={() => nav.ir('subir', {})}
       />
     </View>
@@ -294,6 +295,7 @@ function InicioVivo({ t, nav }) {
       .from('propuestas_vivo')
       .select('*, perfiles:perfiles!propuestas_vivo_artista_id_fkey(nombre), propuesta_generos(genero_id)')
       .eq('activa', true)
+      .eq('revision', 'aprobada')
       .eq('tipo', tipo)
       .order('destacada', { ascending: false })
       .order('creado_en', { ascending: false })
@@ -452,7 +454,8 @@ export default function Inicio(props) {
         </Pressable>
       </Fila>
       <P t={t} muted>
-        Hola, {perfil.nombre}. ¿Qué buscás hoy?
+        Hola, {perfil.nombre}.{' '}
+        {seccion === 'vivo' ? '¡La música para tu evento está acá!' : '¡Tu próximo éxito está acá!'}
       </P>
       <Selector t={t} seccion={seccion} setSeccion={setSeccion} />
       {seccion === 'vivo' ? <InicioVivo {...props} /> : <InicioInedita {...props} />}

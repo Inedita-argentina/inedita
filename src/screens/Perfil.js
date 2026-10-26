@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Linking } from 'react-native';
 import { supabase } from '../supabase';
 import { semaforoCuota, etiquetasEstadoCancion } from '../theme';
+import { etiquetasRevision } from '../revision';
 import {
   H1,
   H2,
@@ -41,17 +42,26 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
   const [ok, setOk] = useState('');
   const [mail, setMail] = useState('');
   const [modoPrueba, setModoPrueba] = useState(false);
+  const [porRevisar, setPorRevisar] = useState(0);
 
   const cargar = useCallback(async () => {
     const [c, p, i, s, u, cfg] = await Promise.all([
-      supabase.from('canciones').select('id,titulo,estado,para_versionar').eq('compositor_id', uid).order('creado_en', { ascending: false }),
-      supabase.from('propuestas_vivo').select('id,nombre_artistico,tipo,activa').eq('artista_id', uid),
+      supabase.from('canciones').select('id,titulo,estado,para_versionar,revision').eq('compositor_id', uid).order('creado_en', { ascending: false }),
+      supabase.from('propuestas_vivo').select('id,nombre_artistico,tipo,activa,revision').eq('artista_id', uid),
       supabase.from('insignias').select('*').eq('perfil_id', uid),
       supabase.from('estadisticas_compositor').select('*').eq('compositor_id', uid).maybeSingle(),
       supabase.auth.getUser(),
       supabase.from('configuracion').select('modo_prueba').eq('id', 1).maybeSingle(),
     ]);
     setCanciones(c.data || []);
+    if (perfil.es_admin) {
+      const [rc, rp, rr] = await Promise.all([
+        supabase.from('canciones').select('id', { count: 'exact', head: true }).eq('revision', 'pendiente'),
+        supabase.from('propuestas_vivo').select('id', { count: 'exact', head: true }).eq('revision', 'pendiente'),
+        supabase.from('reportes').select('id', { count: 'exact', head: true }).eq('resuelto', false),
+      ]);
+      setPorRevisar((rc.count || 0) + (rp.count || 0) + (rr.count || 0));
+    }
     setPropuestas(p.data || []);
     setInsignias(i.data || []);
     setStats(s.data || null);
@@ -100,8 +110,21 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
         <View style={{ flex: 1 }}>
           <H1 t={t}>{perfil.nombre}</H1>
           <Chico t={t}>{mail}</Chico>
+          {perfil.verificado ? <Text style={{ color: t.destacado, fontWeight: '700', marginTop: 4 }}>✓ Autor verificado</Text> : null}
         </View>
       </Fila>
+
+      {perfil.es_admin ? (
+        <Tarjeta t={t} onPress={() => nav.ir('revision', {})} style={{ borderColor: t.destacado, borderWidth: 1 }}>
+          <Fila style={{ justifyContent: 'space-between' }}>
+            <View style={{ flex: 1 }}>
+              <H2 t={t}>Para revisar</H2>
+              <Chico t={t}>Canciones y propuestas nuevas, y reportes.</Chico>
+            </View>
+            <Etiqueta t={t} text={porRevisar ? String(porRevisar) : '0'} tono={porRevisar ? 'aviso' : undefined} />
+          </Fila>
+        </Tarjeta>
+      ) : null}
 
       <Tarjeta t={t}>
         <H2 t={t}>Tu cuota</H2>
@@ -148,7 +171,11 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
                 <Text style={{ color: t.ink, fontWeight: '600', flex: 1 }} numberOfLines={1}>
                   {c.titulo}
                 </Text>
-                <Etiqueta t={t} text={c.para_versionar ? 'Para versionar' : etiquetasEstadoCancion[c.estado]} />
+                {c.revision !== 'aprobada' ? (
+                  <Etiqueta t={t} text={etiquetasRevision[c.revision]} tono={c.revision === 'rechazada' ? 'error' : 'aviso'} />
+                ) : (
+                  <Etiqueta t={t} text={c.para_versionar ? 'Para versionar' : etiquetasEstadoCancion[c.estado]} />
+                )}
               </Fila>
             </Tarjeta>
           ))
@@ -165,7 +192,11 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
                 <Text style={{ color: t.ink, fontWeight: '600', flex: 1 }} numberOfLines={1}>
                   {p.nombre_artistico}
                 </Text>
-                <Etiqueta t={t} text={p.activa ? (p.tipo === 'sonido' ? 'Sonido' : 'Artista') : 'Pausada'} tono={p.activa ? undefined : 'error'} />
+                {p.revision !== 'aprobada' ? (
+                  <Etiqueta t={t} text={etiquetasRevision[p.revision]} tono={p.revision === 'rechazada' ? 'error' : 'aviso'} />
+                ) : (
+                  <Etiqueta t={t} text={p.activa ? (p.tipo === 'sonido' ? 'Sonido' : 'Artista') : 'Pausada'} tono={p.activa ? undefined : 'error'} />
+                )}
               </Fila>
             </Tarjeta>
           ))
