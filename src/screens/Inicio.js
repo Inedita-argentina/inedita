@@ -404,7 +404,7 @@ function InicioVivo({ t, nav }) {
         texto="Elegí artistas o sonido para tu fiesta y pedí presupuesto sin costo."
         boton="Buscar artistas"
         icono="★"
-        colores={{ fondo: '#B02643', texto: '#FFFFFF', acento: t.destacado, sobreAcento: t.onAccent }}
+        colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
         onPress={() => {
           setTipo('artista');
           irALista();
