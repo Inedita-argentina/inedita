@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, Pressable } from 'react-native';
 import { supabase } from '../supabase';
 import { H1, P, Campo, Boton, Aviso, Chico } from '../ui';
 
 function traducirError(e) {
   const m = (e && e.message) || '';
+  if (/descartable|database error saving new user/i.test(m)) {
+    return 'Ese mail no se puede usar: parece un mail temporal. Entrá con tu mail de siempre (Gmail, Hotmail, etc.) o con Google.';
+  }
   if (/rate|seconds|security purposes/i.test(m)) return 'Esperá un minuto antes de pedir otro código.';
   if (/expired|invalid|token/i.test(m)) return 'El código no es correcto o ya venció. Pedí uno nuevo.';
   if (/email/i.test(m) && /valid/i.test(m)) return 'Revisá que el mail esté bien escrito.';
@@ -35,6 +38,19 @@ export default function Login({ t }) {
     else {
       setMail(limpio);
       setPaso('codigo');
+    }
+  }
+
+  async function conGoogle() {
+    setError('');
+    setCargando(true);
+    const { error: e } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined },
+    });
+    if (e) {
+      setCargando(false);
+      setError(/not enabled|provider/i.test(e.message || '') ? 'La entrada con Google todavía no está activada.' : traducirError(e));
     }
   }
 
@@ -89,6 +105,29 @@ export default function Login({ t }) {
             />
             <Aviso t={t} texto={error} />
             <Boton t={t} title="Recibir código" onPress={pedirCodigo} loading={cargando} />
+            {Platform.OS === 'web' ? (
+              <>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ flex: 1, height: 1, backgroundColor: t.line }} />
+                  <Chico t={t}>o</Chico>
+                  <View style={{ flex: 1, height: 1, backgroundColor: t.line }} />
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={conGoogle}
+                  style={({ pressed }) => ({
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 14,
+                    minHeight: 50,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: pressed ? 0.85 : 1,
+                  })}
+                >
+                  <Text style={{ color: '#1F1F1F', fontWeight: '700', fontSize: 16 }}>Continuar con Google</Text>
+                </Pressable>
+              </>
+            ) : null}
           </View>
         ) : (
           <View style={{ gap: 14 }}>

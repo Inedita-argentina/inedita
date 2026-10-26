@@ -1,6 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
 
 // Estos dos datos se cargan en Vercel como "Environment Variables".
 // La dirección tiene un valor por defecto; la clave pública (anon key) es obligatoria.
@@ -15,7 +16,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY || 'falta-c
     storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // En la web, al volver de "Continuar con Google" la sesión llega en la dirección
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
 
