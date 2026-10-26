@@ -4,6 +4,18 @@ import { StatusBar } from 'expo-status-bar';
 import { supabase, configuracionCompleta } from './src/supabase';
 import { temas } from './src/theme';
 import { Cargando, H1, P } from './src/ui';
+
+// La página está en castellano rioplatense: así el navegador no la "traduce" (y no cambia el voseo)
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  document.documentElement.lang = 'es-AR';
+  document.documentElement.setAttribute('translate', 'no');
+  if (!document.querySelector('meta[name="google"]')) {
+    const m = document.createElement('meta');
+    m.name = 'google';
+    m.content = 'notranslate';
+    document.head.appendChild(m);
+  }
+}
 import Login from './src/screens/Login';
 import Onboarding from './src/screens/Onboarding';
 import Inicio from './src/screens/Inicio';

@@ -13,7 +13,8 @@
       "shortName": "Inédita",
       "themeColor": "#050505",
       "backgroundColor": "#050505",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "lang": "es-AR"
     },
     "ios": {
       "bundleIdentifier": "ar.inedita.app",
