@@ -119,6 +119,8 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
         .from('canciones')
         .insert({
           compositor_id: uid,
+          // El administrador publica directo, sin pasar por revisión
+          ...(perfil.es_admin ? { revision: 'aprobada' } : {}),
           titulo: titulo.trim(),
           genero_id: genero,
           otro_genero: genero && descendientes(generos, 'otros').indexOf(genero) >= 0 && otroGenero.trim() ? otroGenero.trim() : null,

@@ -99,7 +99,12 @@ export default function EditarPropuesta({ t, nav, uid, params, perfil, recargarP
     let propuestaId = id;
     let res;
     if (id) res = await supabase.from('propuestas_vivo').update(fila).eq('id', id).select('id').single();
-    else res = await supabase.from('propuestas_vivo').insert(fila).select('id').single();
+    else
+      res = await supabase
+        .from('propuestas_vivo')
+        .insert(perfil.es_admin ? Object.assign({ revision: 'aprobada' }, fila) : fila)
+        .select('id')
+        .single();
     if (res.error) {
       setGuardando(false);
       setError('No se pudo guardar. Revisá los datos y probá de nuevo.');
