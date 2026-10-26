@@ -2,7 +2,7 @@
   
   <g transform="translate(50 50) scale(0.62) translate(-57 -52)" fill="none" stroke-linecap="round">
     <path d="M30 52 C 28 30, 42 14, 58 14 C 75 14, 86 28, 86 44 C 86 56, 79 62, 73 67 C 69.5 71, 69.5 82, 59 90" stroke="#F6C744" stroke-width="5.5"/>
-    <path d="M37 51.5 C 35.5 35.2, 45.9 23.4, 57.7 23.4 C 70.3 23.4, 78.5 33.7, 78.5 45.6 C 78.5 54.4, 73.3 58.9, 68.8 62.6 C 63 66.5, 60 72.5, 53 78.5" stroke="#FFFFFF" stroke-width="5.5"/>
+    <path d="M37 51.5 C 35.5 35.2, 45.9 23.4, 57.7 23.4 C 70.3 23.4, 78.5 33.7, 78.5 45.6 C 78.5 54.4, 73.3 58.9, 68.8 62.6 C 63 66.5, 60 72.5, 53 78.5" stroke="#F6C744" stroke-width="5.5" opacity="0.55"/>
     <path d="M55.7 43.3 C 58.4 49.3, 57.7 56.1, 53.7 62.2" stroke="#F6C744" stroke-width="6"/>
     <path d="M57 35.8 L 61.7 31.8" stroke="#F6C744" stroke-width="5"/>
   </g>
