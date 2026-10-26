@@ -146,13 +146,18 @@ export function Estallido({ disparo, origen }) {
 }
 
 // La pantalla aparece con un pequeño "golpe" (crece un poco y se acomoda)
+// Solo mientras dura la animación se usa una capa animada; después, la pantalla queda "plana"
+// (una capa transformada enorme hace lento el desplazamiento en los celulares).
 export function Aparecer({ clave, activo, children }) {
   const v = useRef(new Animated.Value(1)).current;
+  const [animando, setAnimando] = useState(false);
   useEffect(() => {
     if (!activo) return;
     v.setValue(0);
-    Animated.spring(v, { toValue: 1, friction: 6, tension: 70, useNativeDriver: USAR_NATIVO }).start();
+    setAnimando(true);
+    Animated.spring(v, { toValue: 1, friction: 7, tension: 80, useNativeDriver: USAR_NATIVO }).start(() => setAnimando(false));
   }, [clave]);
+  if (!animando) return <View>{children}</View>;
   return (
     <Animated.View
       style={{

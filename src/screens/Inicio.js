@@ -171,11 +171,7 @@ function Banner({ t, titulo, texto, boton, icono, onPress, colores }) {
         backgroundColor: c.fondo,
         padding: 18,
         gap: 14,
-        transform: [{ scale: apretado ? 0.98 : 1 }],
-        shadowColor: c.fondo,
-        shadowOpacity: 0.35,
-        shadowRadius: 16,
-        shadowOffset: { width: 0, height: 4 },
+        transform: apretado ? [{ scale: 0.98 }] : undefined,
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
