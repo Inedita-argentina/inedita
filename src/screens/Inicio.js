@@ -266,7 +266,7 @@ function InicioInedita({ t, nav }) {
         texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
         boton="Subir una canción"
         icono="+"
-        colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
+        colores={{ fondo: '#FFF4DC', texto: t.primary, acento: t.primary, sobreAcento: t.destacado }}
         onPress={() => nav.ir('subir', {})}
       />
       <Banner
@@ -275,7 +275,7 @@ function InicioInedita({ t, nav }) {
         texto="Canciones de autores argentinos que esperan tu voz y tu escenario."
         boton="Buscar canciones"
         icono="♪"
-        colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
+        colores={{ fondo: '#FFF4DC', texto: t.primary, acento: t.primary, sobreAcento: t.destacado }}
         onPress={() => {
           if (typeof document !== 'undefined') {
             const el = document.getElementById('lista-inedita');
