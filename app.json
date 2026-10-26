@@ -12,19 +12,30 @@
       "name": "Inédita",
       "shortName": "Inédita",
       "themeColor": "#050505",
-      "backgroundColor": "#050505"
+      "backgroundColor": "#050505",
+      "favicon": "./assets/favicon.png"
     },
     "ios": {
       "bundleIdentifier": "ar.inedita.app",
       "supportsTablet": false
     },
     "android": {
-      "package": "ar.inedita.app"
+      "package": "ar.inedita.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#741629"
+      }
     },
     "extra": {
       "eas": {
         "projectId": "2b474659-00fa-4604-b4eb-f66eda42a684"
       }
+    },
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#741629"
     }
   }
 }
