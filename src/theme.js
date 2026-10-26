@@ -1,6 +1,6 @@
-// Dos climas: Inédita (negro, verde intenso y amarillo) e Inédita en Vivo (telón rojo con dorado).
+// Dos climas: Inédita (negro, bordó, dorado y crema) e Inédita en Vivo (telón rojo con dorado).
 export const temas = {
-  // Inédita: negro, verde intenso y amarillo
+  // Inédita: negro, bordó, dorado y crema
   inedita: {
     nombre: 'inedita',
     bg: '#050505',
@@ -10,23 +10,23 @@ export const temas = {
     muted: '#B3B3B3',
     line: '#232323',
     track: '#0C0C0C',
-    primary: '#0F3D22',
+    primary: '#741629',
     onCard: '#FFFFFF',
-    cardB: '#14532D',
-    cardC: '#0A2A17',
-    eyebrow: '#FFD23F',
-    cardSub: '#D4F5E0',
-    accent: '#FFD23F',
-    onAccent: '#0A0A0A',
+    cardB: '#5C0F1F',
+    cardC: '#430A16',
+    eyebrow: '#F6C744',
+    cardSub: '#F3D7DB',
+    accent: '#F6C744',
+    onAccent: '#1A0508',
     soft: '#181818',
     softLine: '#2E2E2E',
-    link: '#1ED760',
-    onLink: '#04120A',
-    destacado: '#FFD23F',
-    destacadoSoft: '#17170F',
-    destacadoLine: '#4A4520',
-    interruptor: '#1ED760',
-    decorado: '#FFD23F',
+    link: '#F6C744',
+    onLink: '#1A0508',
+    destacado: '#F6C744',
+    destacadoSoft: '#1A1208',
+    destacadoLine: '#4A3A18',
+    interruptor: '#B02643',
+    decorado: '#F6C744',
   },
   // Inédita en Vivo: telón rojo con dorado
   vivo: {

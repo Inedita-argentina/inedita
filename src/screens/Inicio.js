@@ -26,8 +26,9 @@ import { useGeneros, hijos, descendientes, nombreGenero } from '../generos';
 function Selector({ t, seccion, setSeccion }) {
   const op = [
     // relleno: color de la solapa activa (igual al cartel de la sección); color: borde y letra cuando no está activa
-    { id: 'inedita', label: 'Inédita', color: '#1ED760', relleno: '#0F3D22', texto: '#FFFFFF' },
-    { id: 'vivo', label: 'Inédita en Vivo', color: '#F6C744', relleno: '#F6C744', texto: '#1A0508' },
+    // color: letra y borde sin elegir · relleno, borde y texto: cuando está elegida
+    { id: 'inedita', label: 'Inédita', color: '#FFF4DC', relleno: '#741629', borde: '#F6C744', texto: '#FFF4DC' },
+    { id: 'vivo', label: 'Inédita en Vivo', color: '#F6C744', relleno: '#F6C744', borde: null, texto: '#1A0508' },
   ];
   return (
     <View
@@ -56,8 +57,8 @@ function Selector({ t, seccion, setSeccion }) {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: activa ? o.relleno : 'transparent',
-              borderWidth: activa && o.relleno === o.color ? 0 : 1.5,
-              borderColor: activa ? o.color : o.color + '88',
+              borderWidth: activa && !o.borde ? 0 : 1.5,
+              borderColor: activa ? o.borde || o.relleno : o.color + '88',
               opacity: pressed ? 0.85 : 1,
             })}
           >
