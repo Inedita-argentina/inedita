@@ -65,6 +65,10 @@ export default function Revision({ t, nav, perfil }) {
         <Cargando t={t} />
       ) : (
         <>
+          <Tarjeta t={t} onPress={() => nav.ir('textosLegales', {})}>
+            <Text style={{ color: t.ink, fontWeight: '700' }}>Textos legales y comisión →</Text>
+            <Chico t={t}>Modelo de autorización autor–intérprete y porcentaje de Inédita.</Chico>
+          </Tarjeta>
           <Chico t={t}>Tocá cada una para escucharla o verla, y aprobarla o rechazarla.</Chico>
 
           <Seccion t={t} titulo={'Canciones (' + datos.canciones.length + ')'}>

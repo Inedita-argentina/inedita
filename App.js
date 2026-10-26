@@ -26,6 +26,8 @@ import Propuesta from './src/screens/Propuesta';
 import EditarPropuesta from './src/screens/EditarPropuesta';
 import Perfil from './src/screens/Perfil';
 import Revision from './src/screens/Revision';
+import Acuerdo from './src/screens/Acuerdo';
+import TextosLegales from './src/screens/TextosLegales';
 
 // Fondo decorativo: salpicado amarillo (Inédita) o estrellas (Inédita en Vivo)
 function Decorado({ seccion }) {
@@ -269,6 +271,12 @@ export default function App() {
       break;
     case 'revision':
       pantalla = <Revision {...ctx} />;
+      break;
+    case 'acuerdo':
+      pantalla = <Acuerdo {...ctx} />;
+      break;
+    case 'textosLegales':
+      pantalla = <TextosLegales {...ctx} />;
       break;
     default:
       pantalla = <Inicio {...ctx} />;

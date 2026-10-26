@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text } from 'react-native';
 import { supabase } from '../supabase';
 import { etiquetasEstadoPedido, etiquetasEstadoSolicitud, plata, fechaLinda } from '../theme';
+import { etiquetasAcuerdo } from '../acuerdo';
 import { H1, P, Chico, Encabezado, Tarjeta, Fila, Etiqueta, Boton, Campo, Aviso, Cargando, Seccion, Estrellas } from '../ui';
 
 function tonoPedido(e) {
@@ -37,7 +38,22 @@ function Calificar({ t, onEnviar, titulo }) {
   );
 }
 
-function PedidoRecibido({ t, p, onCambio }) {
+// Botón al acuerdo de un pedido aceptado
+function BotonAcuerdo({ t, p, acuerdo, nav }) {
+  if (p.estado !== 'aceptado') return null;
+  const estado = acuerdo ? acuerdo.estado : 'sin_proponer';
+  return (
+    <Boton
+      t={t}
+      chico
+      variant={estado === 'firmado' ? 'outline' : 'accent'}
+      title={(estado === 'firmado' ? '✓ ' : '') + etiquetasAcuerdo[estado] + '  →'}
+      onPress={() => nav.ir('acuerdo', { pedidoId: p.id })}
+    />
+  );
+}
+
+function PedidoRecibido({ t, p, onCambio, acuerdo, nav }) {
   const [respuesta, setRespuesta] = useState('');
   return (
     <Tarjeta t={t}>
@@ -52,6 +68,7 @@ function PedidoRecibido({ t, p, onCambio }) {
       </Chico>
       {p.mensaje ? <P t={t}>“{p.mensaje}”</P> : null}
       {p.respuesta ? <Chico t={t}>Tu respuesta: {p.respuesta}</Chico> : null}
+      <BotonAcuerdo t={t} p={p} acuerdo={acuerdo} nav={nav} />
       {p.estado === 'pendiente' ? (
         <View style={{ gap: 8 }}>
           <Campo t={t} value={respuesta} onChangeText={setRespuesta} placeholder="Respuesta (opcional): cómo seguimos, contacto…" multiline />
@@ -124,7 +141,7 @@ export default function Pedidos({ t, uid, nav }) {
   const [ok, setOk] = useState('');
 
   const cargar = useCallback(async () => {
-    const [recibidos, enviados, solRecibidas, solEnviadas, misCalif, misResenas] = await Promise.all([
+    const [recibidos, enviados, solRecibidas, solEnviadas, misCalif, misResenas, acuerdos] = await Promise.all([
       supabase
         .from('pedidos')
         .select('*, canciones(titulo), artista:perfiles!pedidos_artista_id_fkey(nombre)')
@@ -147,7 +164,10 @@ export default function Pedidos({ t, uid, nav }) {
         .order('creado_en', { ascending: false }),
       supabase.from('calificaciones').select('pedido_id').eq('artista_id', uid),
       supabase.from('resenas_vivo').select('solicitud_id').eq('organizador_id', uid),
+      supabase.from('acuerdos').select('pedido_id,estado').or('autor_id.eq.' + uid + ',artista_id.eq.' + uid),
     ]);
+    const mapaAcuerdos = {};
+    (acuerdos.data || []).forEach((a) => (mapaAcuerdos[a.pedido_id] = a));
     setDatos({
       recibidos: recibidos.data || [],
       enviados: enviados.data || [],
@@ -155,6 +175,7 @@ export default function Pedidos({ t, uid, nav }) {
       solEnviadas: solEnviadas.data || [],
       calificados: (misCalif.data || []).map((c) => c.pedido_id),
       resenados: (misResenas.data || []).map((r) => r.solicitud_id),
+      acuerdos: mapaAcuerdos,
     });
   }, [uid]);
 
@@ -230,7 +251,7 @@ export default function Pedidos({ t, uid, nav }) {
       {datos.recibidos.length ? (
         <Seccion t={t} titulo="Pedidos de tus canciones">
           {datos.recibidos.map((p) => (
-            <PedidoRecibido key={p.id} t={t} p={p} onCambio={cambiarPedido} />
+            <PedidoRecibido key={p.id} t={t} p={p} onCambio={cambiarPedido} acuerdo={datos.acuerdos[p.id]} nav={nav} />
           ))}
         </Seccion>
       ) : null}
@@ -253,6 +274,7 @@ export default function Pedidos({ t, uid, nav }) {
                 De {p.compositor ? p.compositor.nombre : 'el autor'} · {fechaLinda(p.creado_en)}
               </Chico>
               {p.respuesta ? <P t={t}>Respuesta: {p.respuesta}</P> : null}
+              <BotonAcuerdo t={t} p={p} acuerdo={datos.acuerdos[p.id]} nav={nav} />
               {p.estado === 'pendiente' ? (
                 <Boton t={t} chico variant="quiet" title="Cancelar pedido" onPress={() => cambiarPedido(p.id, 'cancelado')} />
               ) : null}
