@@ -263,7 +263,7 @@ function InicioInedita({ t, nav }) {
       <Banner
         t={t}
         titulo="¡Encontrá la inédita que buscás!"
-        texto="Canciones de autores argentinos que esperan su voz y su escenario."
+        texto="Canciones de autores argentinos que esperan tu voz y tu escenario."
         boton="Buscar canciones"
         icono="♪"
         colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
