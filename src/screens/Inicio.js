@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Estallido, Aparecer } from '../estallido';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { supabase } from '../supabase';
 import { tiposEvento, etiquetasEstadoCancion, plata } from '../theme';
@@ -479,6 +480,14 @@ function InicioVivo({ t, nav }) {
 
 export default function Inicio(props) {
   const { t, seccion, setSeccion, perfil, nav } = props;
+  const [disparo, setDisparo] = useState(0);
+  const [origen, setOrigen] = useState(null);
+
+  function cambiarSeccion(id) {
+    if (id === 'vivo' && seccion !== 'vivo') setDisparo((d) => d + 1);
+    setSeccion(id);
+  }
+
   return (
     <View style={{ gap: 18 }}>
       <Fila style={{ justifyContent: 'space-between' }}>
@@ -499,8 +508,19 @@ export default function Inicio(props) {
         Hola, {perfil.nombre}.{' '}
         {seccion === 'vivo' ? '¡Acá empieza el show!' : '¡Acá nacen los éxitos!'}
       </P>
-      <Selector t={t} seccion={seccion} setSeccion={setSeccion} />
-      {seccion === 'vivo' ? <InicioVivo {...props} /> : <InicioInedita {...props} />}
+      <View
+        onLayout={(e) => {
+          const { x, y, width, height } = e.nativeEvent.layout;
+          // El estallido sale del centro de la solapa "Inédita en Vivo" (la mitad derecha)
+          setOrigen({ x: x + width * 0.75, y: y + height / 2 });
+        }}
+      >
+        <Selector t={t} seccion={seccion} setSeccion={cambiarSeccion} />
+      </View>
+      <Aparecer clave={disparo} activo={disparo > 0 && seccion === 'vivo'}>
+        {seccion === 'vivo' ? <InicioVivo {...props} /> : <InicioInedita {...props} />}
+      </Aparecer>
+      <Estallido disparo={disparo} origen={origen} />
     </View>
   );
 }
