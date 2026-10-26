@@ -181,7 +181,7 @@ function Banner({ t, titulo, texto, boton, icono, onPress, colores }) {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <View style={{ flex: 1, gap: 4 }}>
           <Text style={{ color: c.texto, fontWeight: '800', fontSize: 20, lineHeight: 25 }}>{titulo}</Text>
-          <Text style={{ color: c.texto, opacity: 0.82, fontSize: 14, lineHeight: 19 }}>{texto}</Text>
+          <Text style={{ color: c.textoSuave || c.texto, opacity: c.textoSuave ? 1 : 0.82, fontSize: 14, lineHeight: 19 }}>{texto}</Text>
         </View>
         <View
           style={{
@@ -267,7 +267,7 @@ function InicioInedita({ t, nav }) {
         texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
         boton="Subir una canción"
         icono="+"
-        colores={{ fondo: '#FFF4DC', texto: '#741629', acento: '#741629', sobreAcento: '#F6C744' }}
+        colores={{ fondo: '#FFF4DC', texto: '#741629', textoSuave: '#8D3E4A', acento: '#741629', sobreAcento: '#F6C744' }}
         onPress={() => nav.ir('subir', {})}
       />
       <Banner
@@ -276,7 +276,7 @@ function InicioInedita({ t, nav }) {
         texto="Canciones de autores argentinos que esperan tu voz y tu escenario."
         boton="Buscar canciones"
         icono="♪"
-        colores={{ fondo: '#FFF4DC', texto: '#741629', acento: '#741629', sobreAcento: '#F6C744' }}
+        colores={{ fondo: '#FFF4DC', texto: '#741629', textoSuave: '#8D3E4A', acento: '#741629', sobreAcento: '#F6C744' }}
         onPress={() => {
           if (typeof document !== 'undefined') {
             const el = document.getElementById('lista-inedita');
