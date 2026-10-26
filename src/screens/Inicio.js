@@ -262,8 +262,8 @@ function InicioInedita({ t, nav }) {
     <View style={{ gap: 22 }}>
       <Banner
         t={t}
-        titulo="¿Cantás? ¡Encontrá tu próxima canción!"
-        texto="Canciones inéditas de autores argentinos, listas para que las grabes."
+        titulo="¡Encontrá la inédita que buscás!"
+        texto="Canciones de autores argentinos que todavía nadie grabó, listas para que las hagas tuyas."
         boton="Buscar canciones"
         icono="♪"
         colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
