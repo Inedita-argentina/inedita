@@ -418,6 +418,15 @@ function InicioVivo({ t, nav }) {
     <View style={{ gap: 22 }}>
       <Banner
         t={t}
+        titulo="¿Tocás en vivo o hacés sonido?"
+        texto="Armá tu propuesta como artista, banda o sonidista, y recibí pedidos de fechas."
+        boton="Crear mi propuesta"
+        icono="♪"
+        colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
+        onPress={() => nav.ir('editarPropuesta', {})}
+      />
+      <Banner
+        t={t}
         titulo="¿Producís un evento? ¡Llevá la música en vivo!"
         texto="Elegí artistas o sonido para tu fiesta y pedí presupuesto sin costo."
         boton="Buscar artistas"
@@ -494,26 +503,6 @@ function InicioVivo({ t, nav }) {
         })}
       </Seccion>
 
-      <Tarjeta t={t} style={{ gap: 12 }}>
-        <Text style={{ color: t.ink, fontWeight: '800', fontSize: 18 }}>¿Tocás en vivo o hacés sonido?</Text>
-        <Chico t={t}>Armá tu propuesta y que te contraten para eventos.</Chico>
-        <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
-          <Boton
-            t={t}
-            variant="accent"
-            title="Crear mi propuesta"
-            onPress={() => nav.ir('editarPropuesta', { tipo: 'artista' })}
-            style={{ flexGrow: 1 }}
-          />
-          <Boton
-            t={t}
-            variant="outline"
-            title="Ofrecer mi servicio"
-            onPress={() => nav.ir('editarPropuesta', { tipo: 'sonido' })}
-            style={{ flexGrow: 1 }}
-          />
-        </View>
-      </Tarjeta>
     </View>
   );
 }
