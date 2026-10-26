@@ -50,6 +50,7 @@ export function Reproductor({ t, ruta, uri, partes, titulo, subtitulo, onDuracio
   const sonidoRef = useRef(null);
   const indiceRef = useRef(0);
   const saltandoRef = useRef(false);
+  const volRef = useRef(1);
   const [sonando, setSonando] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [transcurrido, setTranscurrido] = useState(0);
@@ -75,6 +76,7 @@ export function Reproductor({ t, ruta, uri, partes, titulo, subtitulo, onDuracio
     try {
       await s.pauseAsync();
       await s.setPositionAsync(partes[0].desde * 1000);
+      volRef.current = 1;
       await s.setVolumeAsync(1);
     } finally {
       saltandoRef.current = false;
@@ -87,6 +89,7 @@ export function Reproductor({ t, ruta, uri, partes, titulo, subtitulo, onDuracio
     indiceRef.current = i;
     saltandoRef.current = true;
     try {
+      volRef.current = 0;
       await s.setVolumeAsync(0);
       await s.setPositionAsync(partes[i].desde * 1000);
     } finally {
@@ -110,7 +113,9 @@ export function Reproductor({ t, ruta, uri, partes, titulo, subtitulo, onDuracio
     const pos = st.positionMillis || 0;
 
     const previos = partes.slice(0, i).reduce((a, x) => a + x.dur, 0);
-    setTranscurrido(Math.min(total, previos + Math.max(0, pos - ini) / 1000));
+    // La barra se actualiza de a medio segundo, para no redibujar la pantalla todo el tiempo
+    const nuevo = Math.min(total, previos + Math.max(0, pos - ini) / 1000);
+    setTranscurrido((v) => (Math.abs(nuevo - v) >= 0.5 ? nuevo : v));
 
     if (pos >= fin || st.didJustFinish) {
       if (i + 1 < partes.length) saltarA(s, i + 1);
@@ -120,7 +125,11 @@ export function Reproductor({ t, ruta, uri, partes, titulo, subtitulo, onDuracio
     // Fundido: baja al acercarse al final de cada parte, sube al empezar la segunda
     let vol = Math.min(1, (fin - pos) / FUNDIDO_MS);
     if (i > 0) vol = Math.min(vol, Math.max(0, pos - ini) / FUNDIDO_MS);
-    s.setVolumeAsync(Math.max(0, vol));
+    // Solo se toca el volumen cerca de los cortes
+    if (vol < 1 || volRef.current < 1) {
+      volRef.current = Math.max(0, vol);
+      s.setVolumeAsync(volRef.current);
+    }
   }
 
   async function alternar() {
