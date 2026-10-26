@@ -28,6 +28,8 @@ import Perfil from './src/screens/Perfil';
 import Revision from './src/screens/Revision';
 import Acuerdo from './src/screens/Acuerdo';
 import TextosLegales from './src/screens/TextosLegales';
+import Privacidad from './src/screens/Privacidad';
+import CrearCuenta from './src/screens/CrearCuenta';
 
 // Fondo decorativo: salpicado amarillo (Inédita) o estrellas (Inédita en Vivo)
 function Decorado({ seccion }) {
@@ -97,12 +99,12 @@ function Decorado({ seccion }) {
   );
 }
 
-function BarraInferior({ t, actual, onIr, onSubir }) {
+function BarraInferior({ t, actual, onIr, onSubir, invitado }) {
   const items = [
     { id: 'inicio', label: 'Inicio' },
     { id: 'subir', label: 'Subir', especial: true },
     { id: 'pedidos', label: 'Pedidos' },
-    { id: 'perfil', label: 'Perfil' },
+    { id: 'perfil', label: invitado ? 'Entrar' : 'Perfil' },
   ];
   return (
     <View
@@ -179,6 +181,8 @@ export default function App() {
   const [perfil, setPerfil] = useState(null);
   const [seccion, setSeccion] = useState('inedita');
   const [pila, setPila] = useState([{ nombre: 'inicio' }]);
+  const [invitado, setInvitado] = useState(false);
+  const [verPrivacidad, setVerPrivacidad] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -187,6 +191,7 @@ export default function App() {
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_evento, s) => {
       setSesion(s);
+      if (s) setInvitado(false);
       if (!s) {
         setPerfil(null);
         setPila([{ nombre: 'inicio' }]);
@@ -230,9 +235,31 @@ export default function App() {
     );
   }
 
-  if (!sesion) return <Login t={temas.inedita} />;
+  if (!sesion && !invitado) {
+    if (verPrivacidad) {
+      return (
+        <ScrollView style={{ flex: 1, backgroundColor: temas.inedita.bg }} contentContainerStyle={{ padding: 24, maxWidth: 640, width: '100%', alignSelf: 'center' }}>
+          <Privacidad t={temas.inedita} onVolver={() => setVerPrivacidad(false)} />
+        </ScrollView>
+      );
+    }
+    return (
+      <Login
+        t={temas.inedita}
+        onInvitado={() => {
+          setPila([{ nombre: 'inicio' }]);
+          setInvitado(true);
+        }}
+        onPrivacidad={() => setVerPrivacidad(true)}
+      />
+    );
+  }
 
-  if (!perfil) {
+  // Invitado: mira sin cuenta (perfil vacío, sin id)
+  const esInvitado = !sesion && invitado;
+  const perfilActual = esInvitado ? { id: null, nombre: '', invitado: true, es_admin: false } : perfil;
+
+  if (!perfilActual) {
     return (
       <View style={{ flex: 1, backgroundColor: t.bg, justifyContent: 'center' }}>
         <Cargando t={t} texto="Preparando tu perfil…" />
@@ -240,17 +267,26 @@ export default function App() {
     );
   }
 
-  const sinRoles = !perfil.es_compositor && !perfil.es_artista && !perfil.es_organizador && !perfil.es_sonidista;
-  if (sinRoles || !perfil.nombre) {
+  const sinRoles = !perfilActual.es_compositor && !perfilActual.es_artista && !perfilActual.es_organizador && !perfilActual.es_sonidista;
+  if (!esInvitado && (sinRoles || !perfil.nombre)) {
     return <Onboarding t={temas.inedita} perfil={perfil} uid={uid} onListo={cargarPerfil} />;
   }
 
   const actual = pila[pila.length - 1];
-  const ctx = { t, seccion, setSeccion, perfil, recargarPerfil: cargarPerfil, nav, uid, params: actual.params || {} };
+  const ctx = { t, seccion, setSeccion, perfil: perfilActual, recargarPerfil: cargarPerfil, nav, uid, params: actual.params || {} };
+  const salirDeInvitado = () => setInvitado(false);
+  // Pantallas que necesitan cuenta
+  const conCuenta = ['subir', 'pedidos', 'perfil', 'editarPropuesta', 'acuerdo', 'revision', 'textosLegales'];
   const esRaiz = pila.length === 1;
 
   let pantalla = null;
-  switch (actual.nombre) {
+  switch (esInvitado && conCuenta.indexOf(actual.nombre) >= 0 ? 'crearCuenta' : actual.nombre) {
+    case 'crearCuenta':
+      pantalla = <CrearCuenta {...ctx} onEntrar={salirDeInvitado} />;
+      break;
+    case 'privacidad':
+      pantalla = <Privacidad {...ctx} />;
+      break;
     case 'cancion':
       pantalla = <Cancion {...ctx} />;
       break;
@@ -307,6 +343,7 @@ export default function App() {
       </ScrollView>
       <BarraInferior
         t={t}
+        invitado={esInvitado}
         actual={esRaiz ? actual.nombre : ''}
         onIr={(n) => nav.raiz(n)}
         onSubir={() => (seccion === 'vivo' ? nav.ir('editarPropuesta', {}) : nav.ir('subir', {}))}

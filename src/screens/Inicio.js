@@ -529,12 +529,22 @@ export default function Inicio(props) {
             </Fila>
           ) : null}
         </Fila>
-        <Pressable accessibilityRole="button" accessibilityLabel="Mi perfil" onPress={() => nav.raiz('perfil')}>
-          <Inicial t={t} nombre={perfil.nombre} />
-        </Pressable>
+        {perfil.invitado ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => nav.raiz('perfil')}
+            style={{ backgroundColor: t.destacado, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 }}
+          >
+            <Text style={{ color: t.onAccent, fontWeight: '800' }}>Entrar</Text>
+          </Pressable>
+        ) : (
+          <Pressable accessibilityRole="button" accessibilityLabel="Mi perfil" onPress={() => nav.raiz('perfil')}>
+            <Inicial t={t} nombre={perfil.nombre} />
+          </Pressable>
+        )}
       </Fila>
       <P t={t} muted>
-        Hola, {(perfil.nombre || '').trim()}.{' '}
+        {perfil.invitado ? '¡Hola!' : 'Hola, ' + (perfil.nombre || '').trim() + '.'}{' '}
         {seccion === 'vivo' ? '¡Acá empieza el show!' : '¡Acá nacen los éxitos!'}
       </P>
       <View

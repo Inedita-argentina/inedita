@@ -218,6 +218,7 @@ export default function Perfil({ t, uid, perfil, recargarPerfil, nav }) {
         <Boton t={t} title="Guardar cambios" onPress={guardar} loading={guardando} />
       </Tarjeta>
 
+      <Boton t={t} variant="quiet" title="Política de privacidad" onPress={() => nav.ir('privacidad', {})} />
       <Boton t={t} variant="quiet" title="Cerrar sesión" onPress={() => supabase.auth.signOut()} />
       <Chico t={t} style={{ textAlign: 'center' }}>
         Inédita · versión de prueba 0.1

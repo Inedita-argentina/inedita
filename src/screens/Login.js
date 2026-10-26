@@ -14,7 +14,7 @@ function traducirError(e) {
   return 'Algo salió mal. Probá de nuevo en un momento.';
 }
 
-export default function Login({ t }) {
+export default function Login({ t, onInvitado, onPrivacidad }) {
   const [paso, setPaso] = useState('mail');
   const [mail, setMail] = useState('');
   const [codigo, setCodigo] = useState('');
@@ -128,6 +128,19 @@ export default function Login({ t }) {
                 </Pressable>
               </>
             ) : null}
+            {onInvitado ? (
+              <Pressable accessibilityRole="button" onPress={onInvitado} style={{ alignSelf: 'center', padding: 10 }}>
+                <Text style={{ color: t.link, fontWeight: '700', fontSize: 15 }}>Mirar sin crear cuenta →</Text>
+              </Pressable>
+            ) : null}
+            <Chico t={t} style={{ textAlign: 'center' }}>
+              Solo guardamos tu mail y lo que completes en tu perfil. No vendemos ni compartimos tus datos.{' '}
+              {onPrivacidad ? (
+                <Text style={{ color: t.link, textDecorationLine: 'underline' }} onPress={onPrivacidad}>
+                  Política de privacidad
+                </Text>
+              ) : null}
+            </Chico>
           </View>
         ) : (
           <View style={{ gap: 14 }}>

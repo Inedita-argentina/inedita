@@ -200,6 +200,12 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
 
       {esMia ? (
         <Boton t={t} variant="accent" title="Editar mi propuesta" onPress={() => nav.ir('editarPropuesta', { id: p.id })} />
+      ) : !uid ? (
+        <Tarjeta t={t}>
+          <H2 t={t}>¿Querés contratarlos para tu evento?</H2>
+          <P t={t} muted>Creá tu cuenta gratis: entrás con tu mail o con Google, sin contraseña.</P>
+          <Boton t={t} variant="accent" title="Crear cuenta o entrar" onPress={() => nav.raiz('perfil')} />
+        </Tarjeta>
       ) : p.activa && p.revision === 'aprobada' ? (
         <Tarjeta t={t}>
           <H2 t={t}>Pedir presupuesto</H2>
@@ -230,7 +236,7 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
           <Boton t={t} variant="accent" title="Enviar pedido" onPress={pedirPresupuesto} loading={enviando} />
         </Tarjeta>
       ) : null}
-      {!esMia && p.revision === 'aprobada' ? <BotonReportar t={t} uid={uid} campo="propuesta_id" id={p.id} /> : null}
+      {uid && !esMia && p.revision === 'aprobada' ? <BotonReportar t={t} uid={uid} campo="propuesta_id" id={p.id} /> : null}
     </View>
   );
 }

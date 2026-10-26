@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { supabase } from '../supabase';
-import { Encabezado, Tarjeta, H2, P, Chico, Campo, Boton, Aviso, Cargando } from '../ui';
+import { Encabezado, Tarjeta, H2, P, Chico, Campo, Boton, Aviso, Cargando, Chip, Chips } from '../ui';
 
 const marcadores = [
   ['{FECHA}', 'fecha de la firma'],
@@ -22,7 +22,10 @@ const marcadores = [
 ];
 
 export default function TextosLegales({ t, nav, perfil }) {
-  const [texto, setTexto] = useState(null);
+  const [textos, setTextos] = useState(null);
+  const [cual, setCual] = useState('autorizacion');
+  const texto = textos ? textos[cual] || '' : null;
+  const setTexto = (v) => setTextos(Object.assign({}, textos, { [cual]: v }));
   const [comision, setComision] = useState('');
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
@@ -30,10 +33,12 @@ export default function TextosLegales({ t, nav, perfil }) {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('plantillas').select('texto').eq('id', 'autorizacion').maybeSingle(),
+      supabase.from('plantillas').select('id,texto'),
       supabase.from('configuracion').select('comision_inedita').eq('id', 1).maybeSingle(),
     ]).then(([p, c]) => {
-      setTexto(p.data ? p.data.texto : '');
+      const m = {};
+      (p.data || []).forEach((x) => (m[x.id] = x.texto));
+      setTextos(m);
       setComision(c.data ? String(c.data.comision_inedita).replace('.', ',') : '10');
     });
   }, []);
@@ -63,12 +68,12 @@ export default function TextosLegales({ t, nav, perfil }) {
     if (!texto.trim()) return setError('El texto no puede quedar vacío.');
     setGuardando(true);
     const [a, b] = await Promise.all([
-      supabase.from('plantillas').update({ texto, actualizado_en: new Date().toISOString() }).eq('id', 'autorizacion'),
+      supabase.from('plantillas').update({ texto, actualizado_en: new Date().toISOString() }).eq('id', cual),
       supabase.from('configuracion').update({ comision_inedita: pct }).eq('id', 1),
     ]);
     setGuardando(false);
     if (a.error || b.error) return setError('No se pudo guardar.');
-    setOk('Guardado. Los acuerdos nuevos usan este texto; los ya firmados no cambian.');
+    setOk(cual === 'autorizacion' ? 'Guardado. Los acuerdos nuevos usan este texto; los ya firmados no cambian.' : 'Guardado.');
   }
 
   return (
@@ -87,7 +92,21 @@ export default function TextosLegales({ t, nav, perfil }) {
         />
       </Tarjeta>
 
+      <Chips>
+        <Chip t={t} label="Autorización autor–intérprete" selected={cual === 'autorizacion'} onPress={() => setCual('autorizacion')} />
+        <Chip t={t} label="Política de privacidad" selected={cual === 'privacidad'} onPress={() => setCual('privacidad')} />
+      </Chips>
+
+      {cual === 'privacidad' ? (
+        <Tarjeta t={t}>
+          <H2 t={t}>Política de privacidad</H2>
+          <Chico t={t}>La ve cualquiera desde la pantalla de entrada y desde el perfil. Reemplazala cuando la revise el abogado.</Chico>
+        </Tarjeta>
+      ) : null}
+
       <Tarjeta t={t}>
+        {cual === 'autorizacion' ? (
+          <>
         <H2 t={t}>Modelo de autorización autor–intérprete</H2>
         <Chico t={t}>
           Cuando el abogado lo revise, reemplazá el texto acá. Las palabras entre llaves se completan solas con los datos de cada
@@ -100,6 +119,8 @@ export default function TextosLegales({ t, nav, perfil }) {
             </Chico>
           ))}
         </View>
+          </>
+        ) : null}
         <TextInput
           value={texto}
           onChangeText={setTexto}

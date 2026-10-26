@@ -53,7 +53,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
     setC(data);
     setGrabadaPor(data.grabada_por || '');
     setFrag(fragmentoInicial(data));
-    supabase.rpc('tiene_acceso').then((r) => setAcceso(!!r.data));
+    if (uid) supabase.rpc('tiene_acceso').then((r) => setAcceso(!!r.data));
     const [a, l, f, p, s, ins] = await Promise.all([
       supabase.from('autores').select('*').eq('cancion_id', data.id),
       supabase.from('letras').select('letra').eq('cancion_id', data.id).maybeSingle(),
@@ -176,7 +176,11 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
           {acceso || esMia ? (
             <Reproductor t={t} ruta={c.audio_path} />
           ) : (
-            <Chico t={t}>Para escuchar el demo completo necesitás tener la cuota al día. Revisá tu perfil.</Chico>
+            <Chico t={t}>
+              {uid
+                ? 'Para escuchar el demo completo necesitás tener la cuota al día. Revisá tu perfil.'
+                : 'Creá tu cuenta para escuchar el demo completo y leer la letra.'}
+            </Chico>
           )}
         </View>
       ) : null}
@@ -273,7 +277,13 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
         </Tarjeta>
       ) : null}
 
-      {esMia ? null : (
+      {esMia ? null : !uid ? (
+        <Tarjeta t={t}>
+          <H2 t={t}>¿Te interesa esta canción?</H2>
+          <P t={t} muted>Creá tu cuenta gratis: entrás con tu mail o con Google, sin contraseña.</P>
+          <Boton t={t} variant="accent" title="Crear cuenta o entrar" onPress={() => nav.raiz('perfil')} />
+        </Tarjeta>
+      ) : (
         <View style={{ gap: 12 }}>
           <Boton t={t} variant="outline" title={esFav ? '♥ En tus favoritos' : '♡ Guardar en favoritos'} onPress={alternarFav} />
           {pendiente ? (
@@ -305,7 +315,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
           ) : null}
         </View>
       )}
-      {!esMia && c.revision === 'aprobada' ? <BotonReportar t={t} uid={uid} campo="cancion_id" id={c.id} /> : null}
+      {uid && !esMia && c.revision === 'aprobada' ? <BotonReportar t={t} uid={uid} campo="cancion_id" id={c.id} /> : null}
     </View>
   );
 }
