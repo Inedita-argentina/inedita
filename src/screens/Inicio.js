@@ -262,6 +262,15 @@ function InicioInedita({ t, nav }) {
     <View style={{ gap: 22 }}>
       <Banner
         t={t}
+        titulo="¿Componés? ¡Subí tus canciones!"
+        texto="Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular."
+        boton="Subir una canción"
+        icono="+"
+        colores={{ fondo: t.destacado, texto: t.primary, acento: t.primary, sobreAcento: t.destacado }}
+        onPress={() => nav.ir('subir', {})}
+      />
+      <Banner
+        t={t}
         titulo="¡Encontrá la inédita que buscás!"
         texto="Canciones de autores argentinos que esperan tu voz y tu escenario."
         boton="Buscar canciones"
@@ -326,14 +335,6 @@ function InicioInedita({ t, nav }) {
           ))}
         </Seccion>
       ) : null}
-
-      <Tarjeta t={t} style={{ gap: 12 }}>
-        <Text style={{ color: t.ink, fontWeight: '800', fontSize: 18 }}>¿Componés? ¡Subí tus canciones!</Text>
-        <Chico t={t}>
-          Tu canción puede ser el próximo éxito de otro artista. Se sube en 2 minutos, aunque sea grabada con el celular.
-        </Chico>
-        <Boton t={t} variant="accent" title="Subir una canción" onPress={() => nav.ir('subir', {})} />
-      </Tarjeta>
 
     </View>
   );
