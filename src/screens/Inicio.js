@@ -455,7 +455,7 @@ export default function Inicio(props) {
       </Fila>
       <P t={t} muted>
         Hola, {perfil.nombre}.{' '}
-        {seccion === 'vivo' ? '¡La música para tu evento está acá!' : '¡Tu próximo éxito está acá!'}
+        {seccion === 'vivo' ? '¡Acá empieza el show!' : '¡Acá nacen los éxitos!'}
       </P>
       <Selector t={t} seccion={seccion} setSeccion={setSeccion} />
       {seccion === 'vivo' ? <InicioVivo {...props} /> : <InicioInedita {...props} />}
