@@ -19,7 +19,7 @@ import {
   Inicial,
 } from '../ui';
 import { useGeneros, ruta } from '../generos';
-import { Reproductor, ElegirFragmento, leerTiempo, escribirTiempo } from '../fragmento';
+import { Reproductor, ElegirFragmento, validarFragmento, columnasFragmento, fragmentoInicial, partesDeCancion } from '../fragmento';
 
 export default function Cancion({ t, nav, uid, params, perfil }) {
   const generos = useGeneros();
@@ -36,8 +36,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
   const [ok, setOk] = useState('');
   const [grabadaPor, setGrabadaPor] = useState('');
   const [acceso, setAcceso] = useState(false);
-  const [fragInicio, setFragInicio] = useState('0:00');
-  const [fragDuracion, setFragDuracion] = useState(30);
+  const [frag, setFrag] = useState(fragmentoInicial(null));
   const [okFrag, setOkFrag] = useState('');
 
   const cargar = useCallback(async () => {
@@ -52,8 +51,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
     }
     setC(data);
     setGrabadaPor(data.grabada_por || '');
-    setFragInicio(escribirTiempo(data.fragmento_inicio || 0));
-    setFragDuracion(data.fragmento_duracion || 30);
+    setFrag(fragmentoInicial(data));
     supabase.rpc('tiene_acceso').then((r) => setAcceso(!!r.data));
     const [a, l, f, p, s, ins] = await Promise.all([
       supabase.from('autores').select('*').eq('cancion_id', data.id),
@@ -135,11 +133,11 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
   async function guardarFragmento() {
     setError('');
     setOkFrag('');
-    const desde = leerTiempo(fragInicio);
-    if (desde == null) return setError('Revisá el minuto del fragmento (por ejemplo 1:05).');
+    const res = validarFragmento(frag);
+    if (res.error) return setError(res.error);
     const { error: e } = await supabase
       .from('canciones')
-      .update({ fragmento_inicio: desde, fragmento_duracion: fragDuracion })
+      .update(columnasFragmento(res.partes))
       .eq('id', c.id);
     if (e) setError('No se pudo guardar el fragmento.');
     else {
@@ -168,7 +166,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
 
       {c.audio_path ? (
         <View style={{ gap: 10 }}>
-          <Reproductor t={t} ruta={c.audio_path} desde={c.fragmento_inicio || 0} duracion={c.fragmento_duracion || 30} />
+          <Reproductor t={t} ruta={c.audio_path} partes={partesDeCancion(c)} />
           {acceso || esMia ? (
             <Reproductor t={t} ruta={c.audio_path} />
           ) : (
@@ -257,14 +255,12 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
       {esMia && c.audio_path ? (
         <Tarjeta t={t}>
           <H2 t={t}>Fragmento destacado</H2>
-          <Chico t={t}>Elegí la parte de la canción que escuchan primero los artistas.</Chico>
+          <Chico t={t}>Elegí la parte de la canción que escuchan primero los artistas. Podés armarlo con una o dos partes.</Chico>
           <ElegirFragmento
             t={t}
             ruta={c.audio_path}
-            inicioTexto={fragInicio}
-            onInicioTexto={setFragInicio}
-            duracion={fragDuracion}
-            onDuracion={setFragDuracion}
+            valor={frag}
+            onCambio={setFrag}
           />
           <Aviso t={t} texto={okFrag} tono="ok" />
           <Boton t={t} title="Guardar fragmento" onPress={guardarFragmento} />

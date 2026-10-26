@@ -5,7 +5,7 @@ import { supabase, subirArchivo } from '../supabase';
 import { voces } from '../theme';
 import { Encabezado, P, Chico, Campo, Boton, Aviso, Tarjeta, H2, Chip, Chips, Interruptor, Fila } from '../ui';
 import { useGeneros, SelectorGenero } from '../generos';
-import { ElegirFragmento, leerTiempo } from '../fragmento';
+import { ElegirFragmento, validarFragmento, columnasFragmento, fragmentoInicial } from '../fragmento';
 
 const roles = [
   { id: 'letra_y_musica', nombre: 'Letra y música' },
@@ -29,8 +29,7 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
   const [spotify, setSpotify] = useState('');
   const [anio, setAnio] = useState('');
   const [audio, setAudio] = useState(null);
-  const [fragInicio, setFragInicio] = useState('0:00');
-  const [fragDuracion, setFragDuracion] = useState(30);
+  const [frag, setFrag] = useState(fragmentoInicial(null));
   const [autores, setAutores] = useState([{ nombre: perfil.nombre || '', rol: 'letra_y_musica', porcentaje: '100' }]);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -67,8 +66,8 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
       return setError('Si la canción ya está publicada, pegá el link de YouTube o de Spotify.');
     }
     if (!publicada && !audio) return setError('Subí el audio del demo para que los artistas la puedan escuchar.');
-    const fragDesde = leerTiempo(fragInicio);
-    if (audio && fragDesde == null) return setError('Revisá el minuto del fragmento destacado (por ejemplo 1:05).');
+    const fragRes = validarFragmento(frag);
+    if (audio && fragRes.error) return setError('Fragmento destacado: ' + fragRes.error);
     const autoresValidos = autores.filter((a) => a.nombre.trim());
     const suma = autoresValidos.reduce((s, a) => s + (parseFloat(String(a.porcentaje).replace(',', '.')) || 0), 0);
     if (suma > 100.01) return setError('Los porcentajes de los autores suman más de 100%.');
@@ -87,8 +86,7 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
           voz,
           tematica: tematica.trim() || null,
           audio_path: audioPath,
-          fragmento_inicio: audioPath ? fragDesde || 0 : 0,
-          fragmento_duracion: fragDuracion,
+          ...(audioPath ? columnasFragmento(fragRes.partes) : {}),
           registrada_sadaic: sadaic,
           numero_registro: sadaic ? registro.trim() || null : null,
           ya_publicada: publicada,
@@ -172,15 +170,13 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
         <Tarjeta t={t}>
           <H2 t={t}>Fragmento destacado</H2>
           <Chico t={t}>
-            Es lo primero que escucha un artista: elegí la parte que más vende tu canción. Probalo antes de publicar.
+            Es lo primero que escucha un artista: elegí la parte que más vende tu canción, o armalo con dos partes. Probalo antes de publicar.
           </Chico>
           <ElegirFragmento
             t={t}
             uri={audio.uri}
-            inicioTexto={fragInicio}
-            onInicioTexto={setFragInicio}
-            duracion={fragDuracion}
-            onDuracion={setFragDuracion}
+            valor={frag}
+            onCambio={setFrag}
           />
         </Tarjeta>
       ) : null}
