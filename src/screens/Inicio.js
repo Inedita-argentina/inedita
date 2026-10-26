@@ -17,6 +17,7 @@ import {
   Aviso,
   Inicial,
   Campo,
+  Boton,
 } from '../ui';
 import { useGeneros, hijos, descendientes, nombreGenero } from '../generos';
 
@@ -152,8 +153,10 @@ function FilaCancion({ t, c, generos, onPress }) {
 }
 
 // Llamado a la acción: tarjeta llena de color, con botón, para lo más importante de la app
-function Banner({ t, titulo, texto, boton, icono, onPress }) {
+function Banner({ t, titulo, texto, boton, icono, onPress, colores }) {
   const [apretado, setApretado] = useState(false);
+  // Colores: por defecto, tarjeta del color destacado con detalles oscuros
+  const c = Object.assign({ fondo: t.destacado, texto: t.onAccent, acento: t.onAccent, sobreAcento: t.destacado }, colores || {});
   return (
     <Pressable
       accessibilityRole="button"
@@ -163,11 +166,11 @@ function Banner({ t, titulo, texto, boton, icono, onPress }) {
       onPressOut={() => setApretado(false)}
       style={{
         borderRadius: 22,
-        backgroundColor: t.destacado,
+        backgroundColor: c.fondo,
         padding: 18,
         gap: 14,
         transform: [{ scale: apretado ? 0.98 : 1 }],
-        shadowColor: t.destacado,
+        shadowColor: c.fondo,
         shadowOpacity: 0.35,
         shadowRadius: 16,
         shadowOffset: { width: 0, height: 4 },
@@ -175,33 +178,33 @@ function Banner({ t, titulo, texto, boton, icono, onPress }) {
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <View style={{ flex: 1, gap: 4 }}>
-          <Text style={{ color: t.onAccent, fontWeight: '800', fontSize: 20, lineHeight: 25 }}>{titulo}</Text>
-          <Text style={{ color: t.onAccent, opacity: 0.78, fontSize: 14, lineHeight: 19 }}>{texto}</Text>
+          <Text style={{ color: c.texto, fontWeight: '800', fontSize: 20, lineHeight: 25 }}>{titulo}</Text>
+          <Text style={{ color: c.texto, opacity: 0.82, fontSize: 14, lineHeight: 19 }}>{texto}</Text>
         </View>
         <View
           style={{
             width: 52,
             height: 52,
             borderRadius: 26,
-            backgroundColor: t.onAccent,
+            backgroundColor: c.acento,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Text style={{ color: t.destacado, fontSize: 26, fontWeight: '800', marginTop: -2 }}>{icono || '+'}</Text>
+          <Text style={{ color: c.sobreAcento, fontSize: 26, fontWeight: '800', marginTop: -2 }}>{icono || '+'}</Text>
         </View>
       </View>
       {boton ? (
         <View
           style={{
             alignSelf: 'flex-start',
-            backgroundColor: t.onAccent,
+            backgroundColor: c.acento,
             borderRadius: 999,
             paddingVertical: 10,
             paddingHorizontal: 18,
           }}
         >
-          <Text style={{ color: t.destacado, fontWeight: '800', fontSize: 15 }}>{boton}  →</Text>
+          <Text style={{ color: c.sobreAcento, fontWeight: '800', fontSize: 15 }}>{boton}  →</Text>
         </View>
       ) : null}
     </Pressable>
@@ -321,6 +324,13 @@ function InicioInedita({ t, nav }) {
 }
 
 function InicioVivo({ t, nav }) {
+  function irALista() {
+    // En la web baja suave hasta la lista
+    if (typeof document !== 'undefined') {
+      const el = document.getElementById('lista-vivo');
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
   const generos = useGeneros();
   const [tipo, setTipo] = useState('artista');
   const [evento, setEvento] = useState(null);
@@ -388,12 +398,18 @@ function InicioVivo({ t, nav }) {
 
   return (
     <View style={{ gap: 22 }}>
-      <View style={{ backgroundColor: t.primary, borderRadius: 20, padding: 18, gap: 8 }}>
-        <Text style={{ color: t.onCard, fontSize: 22, fontWeight: '800' }}>Música en vivo para tu evento</Text>
-        <Text style={{ color: t.cardSub, fontSize: 14 }}>
-          Encontrá artistas y sonido, pedí presupuesto y confirmá todo desde la app.
-        </Text>
-      </View>
+      <Banner
+        t={t}
+        titulo="¿Producís un evento? ¡Llevá la música en vivo!"
+        texto="Elegí artistas o sonido para tu fiesta y pedí presupuesto sin costo."
+        boton="Buscar artistas"
+        icono="★"
+        colores={{ fondo: '#B02643', texto: '#FFFFFF', acento: t.destacado, sobreAcento: t.onAccent }}
+        onPress={() => {
+          setTipo('artista');
+          irALista();
+        }}
+      />
 
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <Mosaico id="artista" titulo="Artistas" sub="Bandas, dúos, solistas" />
@@ -409,6 +425,7 @@ function InicioVivo({ t, nav }) {
 
       <Aviso t={t} texto={error} />
 
+      <View nativeID="lista-vivo" />
       <Seccion t={t} titulo={tipo === 'artista' ? 'Artistas' : 'Sonido y luces'}>
         {lista === null ? <Cargando t={t} /> : null}
         {lista && lista.length === 0 ? (
@@ -459,21 +476,26 @@ function InicioVivo({ t, nav }) {
         })}
       </Seccion>
 
-      <Banner
-        t={t}
-        titulo="¿Tocás en vivo?"
-        texto="Armá tu propuesta y recibí pedidos de fechas."
-        boton="Crear mi propuesta"
-        icono="♪"
-        onPress={() => nav.ir('editarPropuesta', { tipo: 'artista' })}
-      />
-      <Banner
-        t={t}
-        titulo="¿Sos sonidista o tenés equipo?"
-        texto="Ofrecé tu servicio y que te contraten para eventos."
-        boton="Ofrecer mi servicio"
-        onPress={() => nav.ir('editarPropuesta', { tipo: 'sonido' })}
-      />
+      <Tarjeta t={t} style={{ gap: 12 }}>
+        <Text style={{ color: t.ink, fontWeight: '800', fontSize: 18 }}>¿Tocás en vivo o hacés sonido?</Text>
+        <Chico t={t}>Armá tu propuesta y que te contraten para eventos.</Chico>
+        <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+          <Boton
+            t={t}
+            variant="accent"
+            title="Crear mi propuesta"
+            onPress={() => nav.ir('editarPropuesta', { tipo: 'artista' })}
+            style={{ flexGrow: 1 }}
+          />
+          <Boton
+            t={t}
+            variant="outline"
+            title="Ofrecer mi servicio"
+            onPress={() => nav.ir('editarPropuesta', { tipo: 'sonido' })}
+            style={{ flexGrow: 1 }}
+          />
+        </View>
+      </Tarjeta>
     </View>
   );
 }
