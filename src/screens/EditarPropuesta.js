@@ -22,6 +22,7 @@ export default function EditarPropuesta({ t, nav, uid, params, perfil, recargarP
   const [formacion, setFormacion] = useState('');
   const [integrantes, setIntegrantes] = useState('');
   const [gens, setGens] = useState([]);
+  const [otroGenero, setOtroGenero] = useState('');
   const [incluyeSonido, setIncluyeSonido] = useState(false);
   const [equipamiento, setEquipamiento] = useState('');
   const [capacidad, setCapacidad] = useState('');
@@ -50,6 +51,7 @@ export default function EditarPropuesta({ t, nav, uid, params, perfil, recargarP
         setFormacion(data.formacion || '');
         setIntegrantes(data.integrantes ? String(data.integrantes) : '');
         setGens((data.propuesta_generos || []).map((g) => g.genero_id));
+        setOtroGenero(data.otro_genero || '');
         setIncluyeSonido(!!data.incluye_sonido);
         setEquipamiento(data.equipamiento || '');
         setCapacidad(data.capacidad_personas ? String(data.capacidad_personas) : '');
@@ -73,7 +75,7 @@ export default function EditarPropuesta({ t, nav, uid, params, perfil, recargarP
   async function guardar() {
     setError('');
     if (!nombre.trim()) return setError('Poné el nombre artístico o del servicio.');
-    if (tipo === 'artista' && !gens.length) return setError('Elegí al menos un género.');
+    if (tipo === 'artista' && !gens.length && !otroGenero.trim()) return setError('Elegí al menos un género.');
     setGuardando(true);
     const fila = {
       artista_id: uid,
@@ -83,6 +85,7 @@ export default function EditarPropuesta({ t, nav, uid, params, perfil, recargarP
       formacion: tipo === 'artista' ? formacion || null : null,
       integrantes: tipo === 'artista' ? parseInt(integrantes, 10) || null : null,
       incluye_sonido: tipo === 'artista' ? incluyeSonido : false,
+      otro_genero: tipo === 'artista' ? otroGenero.trim() || null : null,
       equipamiento: tipo === 'sonido' ? equipamiento.trim() || null : null,
       capacidad_personas: tipo === 'sonido' ? parseInt(capacidad, 10) || null : null,
       incluye_iluminacion: tipo === 'sonido' ? iluminacion : false,
@@ -163,11 +166,11 @@ export default function EditarPropuesta({ t, nav, uid, params, perfil, recargarP
           <Campo t={t} label="Cantidad de integrantes" value={integrantes} onChangeText={setIntegrantes} keyboardType="number-pad" />
           <Tarjeta t={t}>
             <H2 t={t}>Géneros que tocan</H2>
-            <SelectorGenerosMultiple t={t} lista={generos} valores={gens} onCambio={setGens} />
+            <SelectorGenerosMultiple t={t} lista={generos} valores={gens} onCambio={setGens} otro={otroGenero} onOtro={setOtroGenero} />
           </Tarjeta>
           <Interruptor
             t={t}
-            label="Llevamos nuestro propio sonido"
+            label="Contamos con nuestro propio sonido"
             hint="Muchos lugares buscan bandas con sonido incluido."
             value={incluyeSonido}
             onValueChange={setIncluyeSonido}

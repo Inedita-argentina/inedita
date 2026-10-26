@@ -4,7 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { supabase, subirArchivo } from '../supabase';
 import { voces } from '../theme';
 import { Encabezado, P, Chico, Campo, Boton, Aviso, Tarjeta, H2, Chip, Chips, Interruptor, Fila } from '../ui';
-import { useGeneros, SelectorGenero } from '../generos';
+import { useGeneros, SelectorGenero, descendientes } from '../generos';
 import { analizarAudio, puedeAnalizar } from '../analisisAudio';
 import { ElegirFragmento, validarFragmento, columnasFragmento, fragmentoInicial } from '../fragmento';
 
@@ -41,6 +41,7 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
   const generos = useGeneros();
   const [titulo, setTitulo] = useState('');
   const [genero, setGenero] = useState(null);
+  const [otroGenero, setOtroGenero] = useState('');
   const [tonalidad, setTonalidad] = useState('');
   const [voz, setVoz] = useState('indistinta');
   const [tematica, setTematica] = useState('');
@@ -120,6 +121,7 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
           compositor_id: uid,
           titulo: titulo.trim(),
           genero_id: genero,
+          otro_genero: genero && descendientes(generos, 'otros').indexOf(genero) >= 0 && otroGenero.trim() ? otroGenero.trim() : null,
           tonalidad: tonalidad.trim() || null,
           voz,
           tematica: tematica.trim() || null,
@@ -169,7 +171,7 @@ export default function SubirCancion({ t, nav, uid, perfil }) {
 
       <Tarjeta t={t}>
         <H2 t={t}>Género</H2>
-        <SelectorGenero t={t} lista={generos} valor={genero} onCambio={setGenero} />
+        <SelectorGenero t={t} lista={generos} valor={genero} onCambio={setGenero} otro={otroGenero} onOtro={setOtroGenero} />
       </Tarjeta>
 
       <Tarjeta t={t}>

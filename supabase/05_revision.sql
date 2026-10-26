@@ -269,4 +269,9 @@ create trigger antes_de_reportar
   before insert on public.reportes
   for each row execute function public.al_reportar();
 
+-- ---------- 6. OTRO GÉNERO (texto libre) ----------
+-- Para quien toca o compone algo que no está en la lista de géneros
+alter table public.canciones add column if not exists otro_genero text;
+alter table public.propuestas_vivo add column if not exists otro_genero text;
+
 -- Fin

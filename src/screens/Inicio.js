@@ -462,7 +462,7 @@ function InicioVivo({ t, nav }) {
         ) : null}
         {(lista || []).map((p) => {
           const st = stats[p.artista_id] || {};
-          const gens = (p.propuesta_generos || []).map((g) => nombreGenero(generos, g.genero_id)).filter(Boolean);
+          const gens = (p.propuesta_generos || []).map((g) => nombreGenero(generos, g.genero_id)).filter(Boolean).concat(p.otro_genero ? [p.otro_genero] : []);
           let detalle = '';
           if (p.tipo === 'artista') {
             detalle = [gens.slice(0, 3).join(', '), p.formacion, (p.provincias || []).join(', ')].filter(Boolean).join(' · ');

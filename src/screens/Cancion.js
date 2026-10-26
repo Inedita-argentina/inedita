@@ -159,6 +159,7 @@ export default function Cancion({ t, nav, uid, params, perfil }) {
       </Chips>
       <P t={t} muted>
         {ruta(generos, c.genero_id)}
+        {c.otro_genero ? ' (' + c.otro_genero + ')' : ''}
         {c.tonalidad ? ' · ' + c.tonalidad : ''}
         {vozNombre ? ' · ' + vozNombre : ''}
         {c.anio_publicacion ? ' · ' + c.anio_publicacion : ''}

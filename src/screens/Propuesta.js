@@ -160,7 +160,7 @@ export default function Propuesta({ t, nav, uid, params, perfil }) {
 
       {p.descripcion ? <P t={t}>{p.descripcion}</P> : null}
       <View style={{ gap: 4 }}>
-        {gens.length ? <P t={t}>Géneros: {gens.join(', ')}</P> : null}
+        {gens.length || p.otro_genero ? <P t={t}>Géneros: {gens.concat(p.otro_genero ? [p.otro_genero] : []).join(', ')}</P> : null}
         {formacion ? (
           <P t={t}>
             Formación: {formacion}
