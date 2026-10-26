@@ -265,7 +265,7 @@ function InicioInedita({ t, nav }) {
         texto="Canciones inéditas de autores argentinos, listas para que las grabes."
         boton="Buscar canciones"
         icono="♪"
-        colores={{ fondo: t.link, texto: '#04120A', acento: t.destacado, sobreAcento: t.onAccent }}
+        colores={{ fondo: t.primary, texto: t.onCard, acento: t.destacado, sobreAcento: t.onAccent }}
         onPress={() => {
           if (typeof document !== 'undefined') {
             const el = document.getElementById('lista-inedita');
